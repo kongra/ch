@@ -2,8 +2,6 @@
 
 Simple dynamic (run-time) type checks for ADTs.
 
-A Clojure library designed to ... well, that part is up to you.
-
 ## Usage
 
 (use 'kongra.ch)
