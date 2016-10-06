@@ -34,14 +34,18 @@
                (when (seq params) (list (last params))))))
 
 (defn- insert-noarg
-  [[ccseq [cconcat & cclists]]]
-  (assert (=  ccseq        `seq))
-  (assert (=  cconcat   `concat))
-  (assert (>= (count cclists) 2))
-  (let [lsts   (butlast  cclists)
-        lst    (last     cclists)
-        noarg `(list        'nil)]
-    `(seq (concat ~@lsts ~noarg ~lst))))
+  [form]
+  (let [;; lein eastwood passes a wrapper (sequence <form>), let's
+        ;; strip it down:
+        form (if (= (first form) `sequence) (second form) form)
+        [ccseq [cconcat & cclists]] form]
+    (assert (=  ccseq        `seq) (str "Illegal ccseq "     ccseq " in " form))
+    (assert (=  cconcat   `concat) (str "Illegal cconcat " cconcat " in " form))
+    (assert (>= (count cclists) 2) (str "Illegal cclists " cclists " in " form))
+    (let [lsts   (butlast  cclists)
+          lst    (last     cclists)
+          noarg `(list        'nil)]
+      `(seq (concat ~@lsts ~noarg ~lst)))))
 
 (defmacro defch {:style/indent 1}
   [chname args form]
