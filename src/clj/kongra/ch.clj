@@ -2,8 +2,7 @@
 ;; Created 2016-10-05
 (ns kongra.ch)
 
-;; PREDICATE (CLOJURE PROC.) CHeck
-
+;; PREDICATE (CLOJURE PROC.)
 (defn chmsg
   [x]
   (with-out-str
@@ -11,9 +10,13 @@
     (print " of type ") (pr (class x))))
 
 (defn- pred-call-form
-  [form x]
-  (let [form (if (symbol? form) (vector form) form)]
-    (seq (conj (vec form) x))))
+  ([form x]
+   (let [form (if (symbol? form) (vector form) form)]
+     (seq (conj (vec form) x))))
+
+  ([form _ x]
+   (let [form (if (symbol? form) (vector form) form)]
+     (concat form (list nil x)))))
 
 (defmacro ch {:style/indent 1}
   ([pred x]
@@ -25,8 +28,7 @@
    (let [form (pred-call-form pred x)]
      `(boolean ~form))))
 
-;; CHECK GENERATOR
-
+;; GENERATOR
 (defn- insert-noparam
   [params]
   (vec (concat (butlast params)
@@ -56,16 +58,31 @@
        (~args  ~form)
        (~args+ ~form+))))
 
-;; CLASS MEMBERSHIP CHeck
+;; CLASS MEMBERSHIP
 (defch chC [c x] `(ch (instance? ~c) ~x))
 
-;; UNIT (NIL) CHeck
+;; UNIT (NIL)
 (defch chUnit [x] `(ch nil? ~x))
 
-;; NON-UNIT (NOT-NIL) CHeck
-(defmacro not-nil? [x] `(not (nil?   ~x)))
-(defch      chSome [x] `(ch not-nil? ~x))
+;; NON-UNIT (NOT-NIL)
+(defmacro chSome* [x] `(not (nil?   ~x)))
+(defch    chSome  [x] `(ch chSome*  ~x))
 
-;; OBJECT TYPE EQUALITY CHeck
-(defmacro like [y x] `(identical? (class ~y) (class ~x)))
-(defch  chLike [y x] `(ch (like ~y) ~x))
+;; OBJECT TYPE EQUALITY
+(defmacro chLike* [y x] `(identical? (class ~y) (class ~x)))
+(defch    chLike  [y x] `(ch (chLike* ~y) ~x))
+
+;; PODUCT AND CO-PRODUCT (DISCRIMINATED UNION)
+(defmacro ch*
+  [op chs x]
+  (assert (vector? chs) "Must be a chs vector in (ch| ...)")
+  (assert (seq     chs) "(ch| ...) must contain some chs"  )
+  `(~op ~@(map #(pred-call-form % nil x) chs)))
+
+(defch ch& [chs x] `(ch (ch* and ~chs) ~x))
+(defch ch| [chs x] `(ch (ch* or  ~chs) ~x))
+
+(defch chEither [chl chr x] `(ch| [~chl  ~chr]    ~x))
+(defch chMaybe  [ch      x] `(chEither chUnit ~ch ~x))
+
+;; (defch chString [x] `(chC String ~x))
