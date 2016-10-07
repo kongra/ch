@@ -8,10 +8,20 @@
 (deftype Y []) (defchC chY Y)
 (deftype Z []) (defchC chZ Z)
 
-(defch chMaybeX      `(chMaybe  chX       ))
-(defch chEitherXUnit `(chEither chX chUnit))
-(defch chEitherXY    `(chEither chX    chY))
-(defch chXYZ         `(ch| [chX chY chZ]  ))
+(defch chMaybeX      `(chMaybe  chX                       ))
+(defch chEitherXUnit `(chEither chX chUnit                ))
+(defch chEitherXY    `(chEither chX    chY                ))
+(defch chXYZ         `(ch| [chX chY chZ]                  ))
+(defch chMaybeLike1  `(chMaybe (chLike 1                 )))
+(defch chEitherLC    `(chEither (chC Long) (chC Character)))
+(defch chEitherLC'
+  `(chEither (ch (instance? Long)) (ch (instance? Character))))
+
+(defch chCompound1
+  `(chEither
+       (chMaybe  (chLike "aaa"))
+       (chEither (chMaybe (ch (instance? Long)))
+                 (chMaybe (ch (instance? Character))))))
 
 (deftest ch-test
   (testing "(ch ...)"
@@ -201,6 +211,36 @@
     (is (true?                  (chMaybe (chLike "") nil   nil)))
     (is (false?                 (chMaybe (chLike "") nil     2))))
 
+  (testing "(chMaybeLike1 ...)"
+    (is                         (chMaybeLike1          2))
+    (is (nil?                   (chMaybeLike1        nil)))
+    (is (thrown? AssertionError (chMaybeLike1      "xyz")))
+    (is (true?                  (chMaybeLike1  nil     2)))
+    (is (true?                  (chMaybeLike1  nil   nil)))
+    (is (false?                 (chMaybeLike1  nil "xyz"))))
+
+  (testing "(chEitherLC ...)"
+    (is                         (chEitherLC     2))
+    (is                         (chEitherLC    \c))
+    (is (thrown? AssertionError (chEitherLC "xyz")))
+    (is (thrown? AssertionError (chEitherLC   nil)))
+
+    (is (true?                  (chEitherLC nil     2)))
+    (is (true?                  (chEitherLC nil    \c)))
+    (is (false?                 (chEitherLC nil "xyz")))
+    (is (false?                 (chEitherLC nil   nil))))
+
+  (testing "(chEitherLC' ...)"
+    (is                         (chEitherLC'     2))
+    (is                         (chEitherLC'    \c))
+    (is (thrown? AssertionError (chEitherLC' "xyz")))
+    (is (thrown? AssertionError (chEitherLC'   nil)))
+
+    (is (true?                  (chEitherLC' nil     2)))
+    (is (true?                  (chEitherLC' nil    \c)))
+    (is (false?                 (chEitherLC' nil "xyz")))
+    (is (false?                 (chEitherLC' nil   nil))))
+
   (testing "(chMaybe (ch (instance? ...)) ...)"
     (is                         (chMaybe (ch (instance? String))     "aaa"))
     (is (nil?                   (chMaybe (ch (instance? String))       nil)))
@@ -208,6 +248,19 @@
 
     (is (true?                  (chMaybe (ch (instance? String)) nil "aaa")))
     (is (true?                  (chMaybe (ch (instance? String)) nil   nil)))
-    (is (false?                 (chMaybe (ch (instance? String)) nil     1)))))
+    (is (false?                 (chMaybe (ch (instance? String)) nil     1))))
+
+  (testing "(chCompound1 ...)"
+    (is                         (chCompound1 (+ 1 2 3 4)))
+    (is                         (chCompound1          \c))
+    (is                         (chCompound1       "xyz"))
+    (is (nil?                   (chCompound1         nil)))
+    (is (thrown? AssertionError (chCompound1         3/4)))
+
+    (is (true?                  (chCompound1 nil (+ 1 2 3 4))))
+    (is (true?                  (chCompound1 nil          \c)))
+    (is (true?                  (chCompound1 nil       "xyz")))
+    (is (true?                  (chCompound1 nil         nil)))
+    (is (false?                 (chCompound1 nil         3/4)))))
 
 (time (run-tests))

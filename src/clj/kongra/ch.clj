@@ -79,6 +79,11 @@
 ;; CLASS MEMBERSHIP
 (defch chC [c x] `(ch (instance? ~c) ~x))
 
+(defmacro defchC
+  [chname c]
+  (let [x (gensym "x__")]
+    `(defch ~chname [~x] `(chC ~~c ~~x))))
+
 ;; UNIT (NIL)
 (defch chUnit [x] `(ch nil? ~x))
 
@@ -102,12 +107,6 @@
 
 (defch chEither [chl chr x] `(ch| [~chl  ~chr]    ~x))
 (defch chMaybe  [ch      x] `(chEither chUnit ~ch ~x))
-
-;; CLASS → CH
-(defmacro defchC
-  [chname c]
-  (let [x (gensym "x__")]
-    `(defch ~chname [~x] `(chC ~~c ~~x))))
 
 ;; CHS REGISTRY
 (def ^:private CHS (atom {}))
