@@ -94,9 +94,6 @@
 
 (defch chSome [x] `(ch not-nil? ~x))
 
-(defn foo [x]
-  (chSome x))
-
 ;; OBJECT TYPE EQUALITY
 (defmacro chLike* [y x] `(identical? (class ~y) (class ~x)))
 (defch    chLike  [y x] `(ch (chLike* ~y) ~x))
