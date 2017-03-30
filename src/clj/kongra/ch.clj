@@ -88,14 +88,20 @@
 (defch chUnit [x] `(ch nil? ~x))
 
 ;; NON-UNIT (NOT-NIL)
-(defmacro chSome* [x] `(not (nil?   ~x)))
-(defch    chSome  [x] `(ch chSome*  ~x))
+(defn not-nil?
+  {:inline (fn [x] `(if (nil? ~x) false true))}
+               [x]  (if (nil?  x) false true))
+
+(defch chSome [x] `(ch not-nil? ~x))
+
+(defn foo [x]
+  (chSome x))
 
 ;; OBJECT TYPE EQUALITY
 (defmacro chLike* [y x] `(identical? (class ~y) (class ~x)))
 (defch    chLike  [y x] `(ch (chLike* ~y) ~x))
 
-;; PODUCT AND CO-PRODUCT (DISCRIMINATED UNION)
+;; PRODUCT AND CO-PRODUCT (DISCRIMINATED UNION)
 (defmacro ch*
   [op chs x]
   (assert (vector? chs) "Must be a chs vector in (ch| ...)")

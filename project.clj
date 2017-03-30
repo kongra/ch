@@ -1,6 +1,6 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.0"
+(defproject kongra/ch "0.1.1"
   :description "Low-cost dynamic type checks for ADTs"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
@@ -18,4 +18,6 @@
                  *assert*             true
                  *print-length*       500}
 
-  :pedantic? :warn)
+  :pedantic? :warn
+
+  :jvm-opts     ["-Dclojure.compiler.direct-linking=true"])
