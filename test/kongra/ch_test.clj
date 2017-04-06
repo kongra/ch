@@ -8,6 +8,11 @@
 (deftype Y []) (defchC chY Y)
 (deftype Z []) (defchC chZ Z)
 
+(defprotocol   Foo (foo [self]))
+(extend-type X Foo (foo [self]))
+(def      x (X.))
+(defchP  chFoo Foo)
+
 (defch chMaybeX      `(chMaybe  chX                       ))
 (defch chEitherXUnit `(chEither chX chUnit                ))
 (defch chEitherXY    `(chEither chX    chY                ))
@@ -51,6 +56,26 @@
     (is (true?                  (chX nil (X.))))
     (is (false?                 (chX nil    1)))
     (is (false?                 (chX nil nil))))
+
+  (testing "(chP ...)"
+    (is (= x                    (chP Foo        x)))
+    (is (thrown? AssertionError (chP Foo     (Y.))))
+    (is (thrown? AssertionError (chP Foo        1)))
+    (is (thrown? AssertionError (chP Foo      nil)))
+    (is (true?                  (chP Foo nil    x)))
+    (is (false?                 (chP Foo nil (Y.))))
+    (is (false?                 (chP Foo nil    1)))
+    (is (false?                 (chP Foo nil nil))))
+
+  (testing "(defchP ...)"
+    (is (= x                    (chFoo        x)))
+    (is (thrown? AssertionError (chFoo     (Y.))))
+    (is (thrown? AssertionError (chFoo        1)))
+    (is (thrown? AssertionError (chFoo      nil)))
+    (is (true?                  (chFoo nil    x)))
+    (is (false?                 (chFoo nil (Y.))))
+    (is (false?                 (chFoo nil    1)))
+    (is (false?                 (chFoo nil  nil))))
 
   (testing "(chLike ...)"
     (is                         (chLike     1          2))

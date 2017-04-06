@@ -84,6 +84,14 @@
   (let [x (gensym "x__")]
     `(defch ~chname [~x] `(chC ~~c ~~x))))
 
+;; SATISFYING PROTOCOLS
+(defch chP [p x] `(ch (satisfies? ~p) ~x))
+
+(defmacro defchP
+  [chname p]
+  (let [x (gensym "x__")]
+    `(defch ~chname [~x] `(chP ~(quote ~p) ~~x))))
+
 ;; UNIT (NIL)
 (defch chUnit [x] `(ch nil? ~x))
 
