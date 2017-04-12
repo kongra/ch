@@ -1,12 +1,14 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.3"
+(defproject kongra/ch "0.1.4"
   :description "Low-cost dynamic type checks for ADTs"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure                  "1.8.0"]]
+  :dependencies [[org.clojure/clojure                  "1.8.0"]
+                 [primitive-math                       "0.1.5"]]
+
   :profiles     {:repl {:plugins [[lein-nodisassemble  "0.1.3"]]}}
 
   :aot          :all

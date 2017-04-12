@@ -1,9 +1,11 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
 (ns kongra.ch
-  (:require [clojure.set :as cset]))
+  (:require [clojure.set    :as cset]
+            [primitive-math :as    p]))
 
 ;; PREDICATE (CLOJURE PROC.)
+
 (defn chmsg
   [x]
   (with-out-str
@@ -30,6 +32,7 @@
      `(boolean ~form))))
 
 ;; GENERATOR
+
 (defn- insert-noparam
   [params]
   (vec (concat (butlast params)
@@ -77,6 +80,7 @@
         (~args+ ~form+)))))
 
 ;; CLASS MEMBERSHIP
+
 (defch chC [c x] `(ch (instance? ~c) ~x))
 
 (defmacro defchC
@@ -85,6 +89,7 @@
     `(defch ~chname [~x] `(chC ~~c ~~x))))
 
 ;; SATISFYING PROTOCOLS
+
 (defch chP [p x] `(ch (satisfies? ~p) ~x))
 
 (defmacro defchP
@@ -93,9 +98,11 @@
     `(defch ~chname [~x] `(chP ~(quote ~p) ~~x))))
 
 ;; UNIT (NIL)
+
 (defch chUnit [x] `(ch nil? ~x))
 
 ;; NON-UNIT (NOT-NIL)
+
 (defn not-nil?
   {:inline (fn [x] `(if (nil? ~x) false true))}
                [x]  (if (nil?  x) false true))
@@ -103,10 +110,12 @@
 (defch chSome [x] `(ch not-nil? ~x))
 
 ;; OBJECT TYPE EQUALITY
+
 (defmacro chLike* [y x] `(identical? (class ~y) (class ~x)))
 (defch    chLike  [y x] `(ch (chLike* ~y) ~x))
 
 ;; PRODUCT AND CO-PRODUCT (DISCRIMINATED UNION)
+
 (defmacro ch*
   [op chs x]
   (assert (vector? chs) "Must be a chs vector in (ch| ...)")
@@ -120,6 +129,7 @@
 (defch chMaybe  [ch      x] `(chEither chUnit ~ch ~x))
 
 ;; CHS REGISTRY
+
 (def ^:private CHS (atom {}))
 
 (defn regch*
@@ -159,6 +169,7 @@
   (chSet (->> xs (map chs) (apply cset/difference))))
 
 ;; COMMON CHS
+
 (defchC chAgent           clojure.lang.Agent) (regch      chAgent)
 (defchC chAtom             clojure.lang.Atom) (regch       chAtom)
 (defchC chASeq             clojure.lang.ASeq) (regch       chASeq)
@@ -205,3 +216,32 @@
 (defchC chJavaList            java.util.List) (regch   chJavaList)
 (defchC chJavaMap              java.util.Map) (regch    chJavaMap)
 (defchC chJavaSet              java.util.Set) (regch    chJavaSet)
+
+;; POSITIVE/NATURAL INTEGRALS (LONGS)
+
+(defn pos-long? [^long n] (p/>  n 0))
+(defn nat-long? [^long n] (p/>= n 0))
+
+(defch chPoslong `(ch pos-long?))
+(defch chNatlong `(ch nat-long?))
+
+(defn pos-Long?
+  [n]
+  (and (chLong nil n) (pos-long? (.longValue ^Long n))))
+
+(defn nat-Long?
+  [n]
+  (and (chLong nil n) (nat-long? (.longValue ^Long n))))
+
+(defch chPosLong `(ch pos-Long?)) (regch chPosLong)
+(defch chNatLong `(ch nat-Long?)) (regch chNatLong)
+
+;; INTEGRALS (LONGS) IN RANGE
+
+(defn long-in?
+  [^long start ^long end ^long n]
+  (and (p/>= n start) (p/<= n end)))
+
+(defn Long-in?
+  [^long start ^long end n]
+  (and (chLong nil n) (long-in? start end (.longValue ^Long n))))

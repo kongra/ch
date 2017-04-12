@@ -286,6 +286,42 @@
     (is (true?                  (chCompound1 nil          \c)))
     (is (true?                  (chCompound1 nil       "xyz")))
     (is (true?                  (chCompound1 nil         nil)))
-    (is (false?                 (chCompound1 nil         3/4)))))
+    (is (false?                 (chCompound1 nil         3/4))))
+
+  (testing "(chPoslong)"
+    (is                         (chPoslong      1))
+    (is (thrown? AssertionError (chPoslong      0)))
+    (is (thrown? AssertionError (chPoslong     -1)))
+
+    (is (true?                  (chPoslong nil  1)))
+    (is (false?                 (chPoslong nil  0)))
+    (is (false?                 (chPoslong nil -1))))
+
+  (testing "(chPosLong)"
+    (is                         (chPosLong      1))
+    (is (thrown? AssertionError (chPosLong      0)))
+    (is (thrown? AssertionError (chPosLong     -1)))
+
+    (is (true?                  (chPosLong nil  1)))
+    (is (false?                 (chPosLong nil  0)))
+    (is (false?                 (chPosLong nil -1))))
+
+  (testing "(chNatlong)"
+    (is                         (chNatlong      1))
+    (is                         (chNatlong      0))
+    (is (thrown? AssertionError (chNatlong     -1)))
+
+    (is (true?                  (chNatlong nil  1)))
+    (is (true?                  (chNatlong nil  0)))
+    (is (false?                 (chNatlong nil -1))))
+
+  (testing "(chNatLong)"
+    (is                         (chNatLong      1))
+    (is                         (chNatLong      0))
+    (is (thrown? AssertionError (chNatLong     -1)))
+
+    (is (true?                  (chNatLong nil  1)))
+    (is (true?                  (chNatLong nil  0)))
+    (is (false?                 (chNatLong nil -1)))))
 
 (time (run-tests))
