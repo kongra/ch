@@ -30,52 +30,52 @@
 
 (deftest ch-test
   (testing "(ch ...)"
-    (is (thrown? AssertionError (ch (nil?)       1)))
-    (is (nil?                   (ch (nil?)     nil)))
-    (is (false?                 (ch (nil?) nil   1)))
-    (is (true?                  (ch (nil?) nil nil))))
+    (is (thrown? AssertionError (ch (nil?)           1)))
+    (is (nil?                   (ch (nil?)         nil)))
+    (is (false?                 (ch (nil?) :asPred   1)))
+    (is (true?                  (ch (nil?) :asPred nil))))
 
   (testing "(ch ...) with symbolic preds"
-    (is (thrown? AssertionError (ch  nil?        1)))
-    (is (nil?                   (ch  nil?      nil)))
-    (is (false?                 (ch  nil?  nil   1)))
-    (is (true?                  (ch  nil?  nil nil))))
+    (is (thrown? AssertionError (ch  nil?            1)))
+    (is (nil?                   (ch  nil?          nil)))
+    (is (false?                 (ch  nil?  :asPred   1)))
+    (is (true?                  (ch  nil?  :asPred nil))))
 
   (testing "(chC ...)"
-    (is (= ""                   (chC String      "")))
-    (is (thrown? AssertionError (chC String       1)))
-    (is (thrown? AssertionError (chC String     nil)))
-    (is (true?                  (chC String nil  "")))
-    (is (false?                 (chC String nil   1)))
-    (is (false?                 (chC String nil nil))))
+    (is (= ""                   (chC String          "")))
+    (is (thrown? AssertionError (chC String           1)))
+    (is (thrown? AssertionError (chC String         nil)))
+    (is (true?                  (chC String :asPred  "")))
+    (is (false?                 (chC String :asPred   1)))
+    (is (false?                 (chC String :asPred nil))))
 
   (testing "(defchC ...)"
-    (is                         (chX      (X.)))
-    (is (thrown? AssertionError (chX        1)))
-    (is (thrown? AssertionError (chX      nil)))
-    (is (true?                  (chX nil (X.))))
-    (is (false?                 (chX nil    1)))
-    (is (false?                 (chX nil nil))))
+    (is                         (chX         (X.)))
+    (is (thrown? AssertionError (chX           1)))
+    (is (thrown? AssertionError (chX         nil)))
+    (is (true?                  (chX :asPred (X.))))
+    (is (false?                 (chX :asPred    1)))
+    (is (false?                 (chX :asPred nil))))
 
   (testing "(chP ...)"
-    (is (= x                    (chP Foo        x)))
-    (is (thrown? AssertionError (chP Foo     (Y.))))
-    (is (thrown? AssertionError (chP Foo        1)))
-    (is (thrown? AssertionError (chP Foo      nil)))
-    (is (true?                  (chP Foo nil    x)))
-    (is (false?                 (chP Foo nil (Y.))))
-    (is (false?                 (chP Foo nil    1)))
-    (is (false?                 (chP Foo nil nil))))
+    (is (= x                    (chP Foo            x)))
+    (is (thrown? AssertionError (chP Foo          (Y.))))
+    (is (thrown? AssertionError (chP Foo            1)))
+    (is (thrown? AssertionError (chP Foo          nil)))
+    (is (true?                  (chP Foo :asPred    x)))
+    (is (false?                 (chP Foo :asPred (Y.))))
+    (is (false?                 (chP Foo :asPred    1)))
+    (is (false?                 (chP Foo :asPred nil))))
 
   (testing "(defchP ...)"
-    (is (= x                    (chFoo        x)))
-    (is (thrown? AssertionError (chFoo     (Y.))))
-    (is (thrown? AssertionError (chFoo        1)))
-    (is (thrown? AssertionError (chFoo      nil)))
-    (is (true?                  (chFoo nil    x)))
-    (is (false?                 (chFoo nil (Y.))))
-    (is (false?                 (chFoo nil    1)))
-    (is (false?                 (chFoo nil  nil))))
+    (is (= x                    (chFoo            x)))
+    (is (thrown? AssertionError (chFoo          (Y.))))
+    (is (thrown? AssertionError (chFoo            1)))
+    (is (thrown? AssertionError (chFoo          nil)))
+    (is (true?                  (chFoo :asPred    x)))
+    (is (false?                 (chFoo :asPred (Y.))))
+    (is (false?                 (chFoo :asPred    1)))
+    (is (false?                 (chFoo :asPred  nil))))
 
   (testing "(chLike ...)"
     (is                         (chLike     1          2))
@@ -83,44 +83,44 @@
     (is (thrown? AssertionError (chLike "aaa"         2)))
     (is (thrown? AssertionError (chLike     1       nil)))
 
-    (is (true?                  (chLike   2/3 nil   3/4)))
-    (is (false?                 (chLike     1 nil "aaa")))
-    (is (false?                 (chLike "aaa" nil     2)))
-    (is (false?                 (chLike     1 nil   nil))))
+    (is (true?                  (chLike   2/3 :asPred   3/4)))
+    (is (false?                 (chLike     1 :asPred "aaa")))
+    (is (false?                 (chLike "aaa" :asPred     2)))
+    (is (false?                 (chLike     1 :asPred   nil))))
 
   (testing "(chUnit ...)"
     (is (nil?                   (chUnit     nil)))
     (is (thrown? AssertionError (chUnit       1)))
 
-    (is (true?                  (chUnit nil nil)))
-    (is (false?                 (chUnit nil ""))))
+    (is (true?                  (chUnit :asPred nil)))
+    (is (false?                 (chUnit :asPred ""))))
 
   (testing "(chSome ...)"
     (is                         (chSome        1))
     (is (thrown? AssertionError (chSome      nil)))
 
-    (is (true?                  (chSome  nil  "")))
-    (is (false?                 (chSome  nil nil))))
+    (is (true?                  (chSome :asPred  "")))
+    (is (false?                 (chSome :asPred nil))))
 
   (testing "(chMaybe ...)"
-    (is (nil?                   (chMaybe chX      nil)))
-    (is                         (chMaybe chX      (X.)))
-    (is (thrown? AssertionError (chMaybe chX      (Y.))))
-    (is (true?                  (chMaybe chX nil  nil)))
-    (is (true?                  (chMaybe chX nil  (X.))))
-    (is (false?                 (chMaybe chX nil  (Y.))))
+    (is (nil?                   (chMaybe chX         nil)))
+    (is                         (chMaybe chX         (X.)))
+    (is (thrown? AssertionError (chMaybe chX         (Y.))))
+    (is (true?                  (chMaybe chX :asPred nil)))
+    (is (true?                  (chMaybe chX :asPred (X.))))
+    (is (false?                 (chMaybe chX :asPred (Y.))))
 
     (is (nil?                   (chMaybe chUnit nil)))
     (is (thrown? AssertionError (chMaybe chUnit (X.))))
     (is (thrown? AssertionError (chMaybe chUnit (Y.)))))
 
   (testing "(chMaybe ...) with (defch ...)"
-    (is (nil?                   (chMaybeX     nil)))
-    (is                         (chMaybeX     (X.)))
-    (is (thrown? AssertionError (chMaybeX     (Y.))))
-    (is (true?                  (chMaybeX nil  nil)))
-    (is (true?                  (chMaybeX nil (X.))))
-    (is (false?                 (chMaybeX nil (Y.)))))
+    (is (nil?                   (chMaybeX          nil)))
+    (is                         (chMaybeX          (X.)))
+    (is (thrown? AssertionError (chMaybeX          (Y.))))
+    (is (true?                  (chMaybeX :asPred  nil)))
+    (is (true?                  (chMaybeX :asPred (X.))))
+    (is (false?                 (chMaybeX :asPred (Y.)))))
 
   (testing "(chEither ...)"
     (is (nil?                   (chEither chX chUnit  nil)))
@@ -131,13 +131,13 @@
     (is (thrown? AssertionError (chEither chX chY    (Z.))))
     (is (thrown? AssertionError (chEither chX chY     nil)))
 
-    (is (true?   (chEither chX chUnit nil  nil)))
-    (is (true?   (chEither chX chUnit nil (X.))))
-    (is (false?  (chEither chX chUnit nil (Y.))))
-    (is (true?   (chEither chX chY    nil (X.))))
-    (is (true?   (chEither chX chY    nil (Y.))))
-    (is (false?  (chEither chX chY    nil (Z.))))
-    (is (false?  (chEither chX chY    nil nil))))
+    (is (true?   (chEither chX chUnit :asPred  nil)))
+    (is (true?   (chEither chX chUnit :asPred (X.))))
+    (is (false?  (chEither chX chUnit :asPred (Y.))))
+    (is (true?   (chEither chX chY    :asPred (X.))))
+    (is (true?   (chEither chX chY    :asPred (Y.))))
+    (is (false?  (chEither chX chY    :asPred (Z.))))
+    (is (false?  (chEither chX chY    :asPred nil))))
 
   (testing "(chEither ...) with (defch ...)"
     (is (nil?                   (chEitherXUnit nil)))
@@ -148,13 +148,13 @@
     (is (thrown? AssertionError (chEitherXY    (Z.))))
     (is (thrown? AssertionError (chEitherXY    nil)))
 
-    (is (true?   (chEitherXUnit nil  nil)))
-    (is (true?   (chEitherXUnit nil (X.))))
-    (is (false?  (chEitherXUnit nil (Y.))))
-    (is (true?   (chEitherXY    nil (X.))))
-    (is (true?   (chEitherXY    nil (Y.))))
-    (is (false?  (chEitherXY    nil (Z.))))
-    (is (false?  (chEitherXY    nil nil))))
+    (is (true?   (chEitherXUnit :asPred  nil)))
+    (is (true?   (chEitherXUnit :asPred (X.))))
+    (is (false?  (chEitherXUnit :asPred (Y.))))
+    (is (true?   (chEitherXY    :asPred (X.))))
+    (is (true?   (chEitherXY    :asPred (Y.))))
+    (is (false?  (chEitherXY    :asPred (Z.))))
+    (is (false?  (chEitherXY    :asPred nil))))
 
   (testing "(ch| ...)"
     (is                         (ch| [chX chY chZ]   (X.)))
@@ -164,12 +164,12 @@
     (is (thrown? AssertionError (ch| [chX chY chZ] "aaa")))
     (is (thrown? AssertionError (ch| [chX chY chZ]     1)))
 
-    (is (true?   (ch| [chX chY chZ] #_ as-pred nil  (X.))))
-    (is (true?   (ch| [chX chY chZ] #_ as-pred nil  (Y.))))
-    (is (true?   (ch| [chX chY chZ] #_ as-pred nil  (Z.))))
-    (is (false?  (ch| [chX chY chZ] #_ as-pred nil   nil)))
-    (is (false?  (ch| [chX chY chZ] #_ as-pred nil "aaa")))
-    (is (false?  (ch| [chX chY chZ] #_ as-pred nil     1)))
+    (is (true?   (ch| [chX chY chZ] :asPred  (X.))))
+    (is (true?   (ch| [chX chY chZ] :asPred  (Y.))))
+    (is (true?   (ch| [chX chY chZ] :asPred  (Z.))))
+    (is (false?  (ch| [chX chY chZ] :asPred   nil)))
+    (is (false?  (ch| [chX chY chZ] :asPred "aaa")))
+    (is (false?  (ch| [chX chY chZ] :asPred     1)))
 
     (is                         (ch| [chX chZ chY]   (X.)))
     (is                         (ch| [chX chZ chY]   (Y.)))
@@ -214,12 +214,12 @@
     (is (thrown? AssertionError (chXYZ     "aaa")))
     (is (thrown? AssertionError (chXYZ         1)))
 
-    (is (true?                  (chXYZ nil  (X.))))
-    (is (true?                  (chXYZ nil  (Y.))))
-    (is (true?                  (chXYZ nil  (Z.))))
-    (is (false?                 (chXYZ nil   nil)))
-    (is (false?                 (chXYZ nil "aaa")))
-    (is (false?                 (chXYZ nil   1))))
+    (is (true?                  (chXYZ :asPred  (X.))))
+    (is (true?                  (chXYZ :asPred  (Y.))))
+    (is (true?                  (chXYZ :asPred  (Z.))))
+    (is (false?                 (chXYZ :asPred   nil)))
+    (is (false?                 (chXYZ :asPred "aaa")))
+    (is (false?                 (chXYZ :asPred   1))))
 
   (testing "(chMaybe (chLike ...))"
     (is                         (chMaybe (chLike  1)         2))
@@ -229,20 +229,20 @@
     (is (nil?                   (chMaybe (chLike "")       nil)))
     (is (thrown? AssertionError (chMaybe (chLike "")         2)))
 
-    (is (true?                  (chMaybe (chLike  1) nil     2)))
-    (is (true?                  (chMaybe (chLike  1) nil   nil)))
-    (is (false?                 (chMaybe (chLike  1) nil "xyz")))
-    (is (true?                  (chMaybe (chLike "") nil "xyz")))
-    (is (true?                  (chMaybe (chLike "") nil   nil)))
-    (is (false?                 (chMaybe (chLike "") nil     2))))
+    (is (true?                  (chMaybe (chLike  1) :asPred     2)))
+    (is (true?                  (chMaybe (chLike  1) :asPred   nil)))
+    (is (false?                 (chMaybe (chLike  1) :asPred "xyz")))
+    (is (true?                  (chMaybe (chLike "") :asPred "xyz")))
+    (is (true?                  (chMaybe (chLike "") :asPred   nil)))
+    (is (false?                 (chMaybe (chLike "") :asPred     2))))
 
   (testing "(chMaybeLike1 ...)"
-    (is                         (chMaybeLike1          2))
-    (is (nil?                   (chMaybeLike1        nil)))
-    (is (thrown? AssertionError (chMaybeLike1      "xyz")))
-    (is (true?                  (chMaybeLike1  nil     2)))
-    (is (true?                  (chMaybeLike1  nil   nil)))
-    (is (false?                 (chMaybeLike1  nil "xyz"))))
+    (is                         (chMaybeLike1             2))
+    (is (nil?                   (chMaybeLike1           nil)))
+    (is (thrown? AssertionError (chMaybeLike1         "xyz")))
+    (is (true?                  (chMaybeLike1 :asPred     2)))
+    (is (true?                  (chMaybeLike1 :asPred   nil)))
+    (is (false?                 (chMaybeLike1 :asPred "xyz"))))
 
   (testing "(chEitherLC ...)"
     (is                         (chEitherLC     2))
@@ -250,10 +250,10 @@
     (is (thrown? AssertionError (chEitherLC "xyz")))
     (is (thrown? AssertionError (chEitherLC   nil)))
 
-    (is (true?                  (chEitherLC nil     2)))
-    (is (true?                  (chEitherLC nil    \c)))
-    (is (false?                 (chEitherLC nil "xyz")))
-    (is (false?                 (chEitherLC nil   nil))))
+    (is (true?                  (chEitherLC :asPred     2)))
+    (is (true?                  (chEitherLC :asPred    \c)))
+    (is (false?                 (chEitherLC :asPred "xyz")))
+    (is (false?                 (chEitherLC :asPred   nil))))
 
   (testing "(chEitherLC' ...)"
     (is                         (chEitherLC'     2))
@@ -261,19 +261,19 @@
     (is (thrown? AssertionError (chEitherLC' "xyz")))
     (is (thrown? AssertionError (chEitherLC'   nil)))
 
-    (is (true?                  (chEitherLC' nil     2)))
-    (is (true?                  (chEitherLC' nil    \c)))
-    (is (false?                 (chEitherLC' nil "xyz")))
-    (is (false?                 (chEitherLC' nil   nil))))
+    (is (true?                  (chEitherLC' :asPred     2)))
+    (is (true?                  (chEitherLC' :asPred    \c)))
+    (is (false?                 (chEitherLC' :asPred "xyz")))
+    (is (false?                 (chEitherLC' :asPred   nil))))
 
   (testing "(chMaybe (ch (instance? ...)) ...)"
     (is                         (chMaybe (ch (instance? String))     "aaa"))
     (is (nil?                   (chMaybe (ch (instance? String))       nil)))
     (is (thrown? AssertionError (chMaybe (ch (instance? String))         1)))
 
-    (is (true?                  (chMaybe (ch (instance? String)) nil "aaa")))
-    (is (true?                  (chMaybe (ch (instance? String)) nil   nil)))
-    (is (false?                 (chMaybe (ch (instance? String)) nil     1))))
+    (is (true?                  (chMaybe (ch (instance? String)) :asPred "aaa")))
+    (is (true?                  (chMaybe (ch (instance? String)) :asPred   nil)))
+    (is (false?                 (chMaybe (ch (instance? String)) :asPred     1))))
 
   (testing "(chCompound1 ...)"
     (is                         (chCompound1 (+ 1 2 3 4)))
@@ -282,46 +282,46 @@
     (is (nil?                   (chCompound1         nil)))
     (is (thrown? AssertionError (chCompound1         3/4)))
 
-    (is (true?                  (chCompound1 nil (+ 1 2 3 4))))
-    (is (true?                  (chCompound1 nil          \c)))
-    (is (true?                  (chCompound1 nil       "xyz")))
-    (is (true?                  (chCompound1 nil         nil)))
-    (is (false?                 (chCompound1 nil         3/4))))
+    (is (true?                  (chCompound1 :asPred (+ 1 2 3 4))))
+    (is (true?                  (chCompound1 :asPred          \c)))
+    (is (true?                  (chCompound1 :asPred       "xyz")))
+    (is (true?                  (chCompound1 :asPred         nil)))
+    (is (false?                 (chCompound1 :asPred         3/4))))
 
   (testing "(chPoslong)"
     (is                         (chPoslong      1))
     (is (thrown? AssertionError (chPoslong      0)))
     (is (thrown? AssertionError (chPoslong     -1)))
 
-    (is (true?                  (chPoslong nil  1)))
-    (is (false?                 (chPoslong nil  0)))
-    (is (false?                 (chPoslong nil -1))))
+    (is (true?                  (chPoslong :asPred  1)))
+    (is (false?                 (chPoslong :asPred  0)))
+    (is (false?                 (chPoslong :asPred -1))))
 
   (testing "(chPosLong)"
     (is                         (chPosLong      1))
     (is (thrown? AssertionError (chPosLong      0)))
     (is (thrown? AssertionError (chPosLong     -1)))
 
-    (is (true?                  (chPosLong nil  1)))
-    (is (false?                 (chPosLong nil  0)))
-    (is (false?                 (chPosLong nil -1))))
+    (is (true?                  (chPosLong :asPred  1)))
+    (is (false?                 (chPosLong :asPred  0)))
+    (is (false?                 (chPosLong :asPred -1))))
 
   (testing "(chNatlong)"
     (is                         (chNatlong      1))
     (is                         (chNatlong      0))
     (is (thrown? AssertionError (chNatlong     -1)))
 
-    (is (true?                  (chNatlong nil  1)))
-    (is (true?                  (chNatlong nil  0)))
-    (is (false?                 (chNatlong nil -1))))
+    (is (true?                  (chNatlong :asPred  1)))
+    (is (true?                  (chNatlong :asPred  0)))
+    (is (false?                 (chNatlong :asPred -1))))
 
   (testing "(chNatLong)"
     (is                         (chNatLong      1))
     (is                         (chNatLong      0))
     (is (thrown? AssertionError (chNatLong     -1)))
 
-    (is (true?                  (chNatLong nil  1)))
-    (is (true?                  (chNatLong nil  0)))
-    (is (false?                 (chNatLong nil -1)))))
+    (is (true?                  (chNatLong :asPred  1)))
+    (is (true?                  (chNatLong :asPred  0)))
+    (is (false?                 (chNatLong :asPred -1)))))
 
 (time (run-tests))

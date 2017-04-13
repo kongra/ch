@@ -9,17 +9,19 @@
 (defn chmsg
   [x]
   (with-out-str
-    (print "Illegal value ")   (pr x)
-    (print " of type ") (pr (class x))))
+    (print "Illegal value ") (pr        x)
+    (print " of type "     ) (pr (class x))))
 
 (defn- pred-call-form
   ([form x]
    (let [form (if (symbol? form) (vector form) form)]
      (seq (conj (vec form) x))))
 
-  ([form _ x]
+  ([form aspred x]
+   ;; (when-not (identical? aspred :asPred)
+   ;;   (throw (IllegalArgumentException. ":asPred must be used here")))
    (let [form (if (symbol? form) (vector form) form)]
-     (concat form (list nil x)))))
+     (concat form (list aspred x)))))
 
 (defmacro ch {:style/indent 1}
   ([pred x]
@@ -27,20 +29,23 @@
          form (pred-call-form pred x')]
      `(let [~x' ~x] (assert ~form (chmsg ~x')) ~x')))
 
-  ([pred #_ be-pred _ x]
+  ([pred aspred x]
+   (when-not (identical? aspred :asPred)
+     (throw (IllegalArgumentException. ":asPred must be used here")))
+
    (let [form (pred-call-form pred x)]
      `(boolean ~form))))
 
 ;; GENERATOR
 
 (defn- insert-noparam
-  [params]
+  [noparam params]
   (vec (concat (butlast params)
-               (list '_)
+               (list noparam)
                (when (seq params) (list (last params))))))
 
 (defn- insert-noarg
-  [form]
+  [noarg form]
   (let [;; lein eastwood passes a wrapper (sequence <form>), let's
         ;; strip it down:
         form (if (= (first form) `sequence) (second form) form)
@@ -50,7 +55,7 @@
     (assert (>= (count cclists) 2) (str "Illegal cclists " cclists " in " form))
     (let [lsts   (butlast  cclists)
           lst    (last     cclists)
-          noarg `(list        'nil)]
+          noarg `(list      ~noarg)]
       `(seq (concat ~@lsts ~noarg ~lst)))))
 
 (defn- append-arg
@@ -73,10 +78,11 @@
 
   ([chname args form]
    (assert (vector? args))
-   (let [args+ (insert-noparam args)
-         form+ (insert-noarg   form)]
+   (let [aspred (gensym          "aspred__")
+         args+  (insert-noparam aspred args)
+         form+  (insert-noarg   aspred form)]
      `(defmacro ~chname {:style/indent 1}
-        (~args  ~form)
+        (~args  ~form )
         (~args+ ~form+)))))
 
 ;; CLASS MEMBERSHIP
@@ -120,7 +126,7 @@
   [op chs x]
   (assert (vector? chs) "Must be a chs vector in (ch| ...)")
   (assert (seq     chs) "(ch| ...) must contain some chs"  )
-  `(~op ~@(map #(pred-call-form % nil x) chs)))
+  `(~op ~@(map #(pred-call-form % :asPred x) chs)))
 
 (defch ch& [chs x] `(ch (ch* and ~chs) ~x))
 (defch ch| [chs x] `(ch (ch* or  ~chs) ~x))
@@ -148,7 +154,7 @@
   [ch]
   (assert (symbol? ch))
   (let [x (gensym "x__")]
-    `(regch* ~(str ch) (fn [~x] ~(pred-call-form ch nil x)))))
+    `(regch* ~(str ch) (fn [~x] ~(pred-call-form ch :asPred x)))))
 
 (defchC chSet clojure.lang.IPersistentSet) (regch chSet)
 
@@ -227,11 +233,11 @@
 
 (defn pos-Long?
   [n]
-  (and (chLong nil n) (pos-long? (.longValue ^Long n))))
+  (and (chLong :asPred n) (pos-long? (.longValue ^Long n))))
 
 (defn nat-Long?
   [n]
-  (and (chLong nil n) (nat-long? (.longValue ^Long n))))
+  (and (chLong :asPred n) (nat-long? (.longValue ^Long n))))
 
 (defch chPosLong `(ch pos-Long?)) (regch chPosLong)
 (defch chNatLong `(ch nat-Long?)) (regch chNatLong)
@@ -244,4 +250,4 @@
 
 (defn Long-in?
   [^long start ^long end n]
-  (and (chLong nil n) (long-in? start end (.longValue ^Long n))))
+  (and (chLong :asPred n) (long-in? start end (.longValue ^Long n))))
