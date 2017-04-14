@@ -17,11 +17,11 @@
    (let [form (if (symbol? form) (vector form) form)]
      (seq (conj (vec form) x))))
 
-  ([form aspred x]
-   ;; (when-not (identical? aspred :asPred)
-   ;;   (throw (IllegalArgumentException. ":asPred must be used here")))
+  ([form asPred x]
+   (when-not (identical? asPred :asPred)
+     (throw (IllegalArgumentException. ":asPred must be used here")))
    (let [form (if (symbol? form) (vector form) form)]
-     (concat form (list aspred x)))))
+     (concat form (list asPred x)))))
 
 (defmacro ch {:style/indent 1}
   ([pred x]
@@ -29,8 +29,8 @@
          form (pred-call-form pred x')]
      `(let [~x' ~x] (assert ~form (chmsg ~x')) ~x')))
 
-  ([pred aspred x]
-   (when-not (identical? aspred :asPred)
+  ([pred asPred x]
+   (when-not (identical? asPred :asPred)
      (throw (IllegalArgumentException. ":asPred must be used here")))
 
    (let [form (pred-call-form pred x)]
@@ -78,9 +78,9 @@
 
   ([chname args form]
    (assert (vector? args))
-   (let [aspred (gensym          "aspred__")
-         args+  (insert-noparam aspred args)
-         form+  (insert-noarg   aspred form)]
+   (let [asPred (gensym          "asPred__")
+         args+  (insert-noparam asPred args)
+         form+  (insert-noarg   asPred form)]
      `(defmacro ~chname {:style/indent 1}
         (~args  ~form )
         (~args+ ~form+)))))

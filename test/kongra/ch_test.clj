@@ -322,6 +322,28 @@
 
     (is (true?                  (chNatLong :asPred  1)))
     (is (true?                  (chNatLong :asPred  0)))
-    (is (false?                 (chNatLong :asPred -1)))))
+    (is (false?                 (chNatLong :asPred -1))))
+
+  (testing "(ch (long-in? start end) ...)"
+    (is                         (ch (long-in? 1 10)  5))
+    (is (thrown? AssertionError (ch (long-in? 1 10)  0)))
+    (is (thrown? AssertionError (ch (long-in? 1 10) -1)))
+    (is (thrown? AssertionError (ch (long-in? 1 10) 11)))
+
+    (is (true?                  (ch (long-in? 1 10) :asPred  5)))
+    (is (false?                 (ch (long-in? 1 10) :asPred  0)))
+    (is (false?                 (ch (long-in? 1 10) :asPred -1)))
+    (is (false?                 (ch (long-in? 1 10) :asPred 11))))
+
+  (testing "(ch (Long-in? start end) ...)"
+    (is                         (ch (Long-in? 1 10)  5))
+    (is (thrown? AssertionError (ch (Long-in? 1 10)  0)))
+    (is (thrown? AssertionError (ch (Long-in? 1 10) -1)))
+    (is (thrown? AssertionError (ch (Long-in? 1 10) 11)))
+
+    (is (true?                  (ch (Long-in? 1 10) :asPred  5)))
+    (is (false?                 (ch (Long-in? 1 10) :asPred  0)))
+    (is (false?                 (ch (Long-in? 1 10) :asPred -1)))
+    (is (false?                 (ch (Long-in? 1 10) :asPred 11)))))
 
 (time (run-tests))
