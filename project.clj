@@ -8,7 +8,8 @@
 
   :dependencies [[org.clojure/clojure          "1.9.0"]
                  [primitive-math               "0.1.6"]
-                 [org.clojure/clojurescript "1.10.339"]]
+                 [org.clojure/clojurescript "1.10.339"]
+                 [reagent                      "0.8.1"]]
 
   :plugins      [[lein-cljsbuild               "1.1.7"]
                  [lein-figwheel               "0.5.16"
@@ -20,7 +21,7 @@
                                  [cider/cider-nrepl       "0.17.0"]]}}
   :aot          :all
 
-  :source-paths ["src/clj" "test"]
+  :source-paths ["src/clj" "test/clj"]
   :test-paths   ["test"]
 
   :global-vars  {*warn-on-reflection* true
@@ -33,9 +34,9 @@
 
   :cljsbuild {
               :builds [{:id "dev"
-                        :source-paths ["src/cljs"]
+                        :source-paths ["src/cljs" "test/cljs"]
                         :figwheel {:on-jsload            "kongra.ch/onJSreload"}
-                        :compiler {:main                 kongra.ch
+                        :compiler {:main                 kongra.ch.test
                                    :asset-path           "js/compiled/out"
                                    :output-to            "resources/public/js/compiled/ch.js"
                                    :output-dir           "resources/public/js/compiled/out"
@@ -44,5 +45,8 @@
                         :source-paths ["src/cljs"]
                         :compiler {:output-to            "resources/public/js/compiled/ch.js"
                                    :main                  kongra.ch
+                                   :static-fns            true
                                    :optimizations         :advanced
-                                   :pretty-print          false }}]})
+                                   :pretty-print          false }}]}
+
+  :figwheel { :css-dirs ["resources/public/css"] })

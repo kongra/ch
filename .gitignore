@@ -2,9 +2,14 @@
 *.jar
 .lein*
 .nrepl-port
+.rebel_readline_history
+.repl
 /checkouts/
 /classes/
 /lib/
+/out/
+/resources/public/js/compiled/**
 /logs/
 /target/
+figwheel_server.log
 pom.xml*
