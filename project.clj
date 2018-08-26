@@ -34,8 +34,8 @@
 
   :cljsbuild {
               :builds [{:id "dev"
-                        :source-paths ["src/cljs" "test/cljs"]
-                        :figwheel {:on-jsload            "kongra.ch/onJSreload"}
+                        :source-paths ["test/cljs" "src/cljs"]
+                        :figwheel {:on-jsload            "kongra.ch.test/onJSreload"}
                         :compiler {:main                 kongra.ch.test
                                    :asset-path           "js/compiled/out"
                                    :output-to            "resources/public/js/compiled/ch.js"

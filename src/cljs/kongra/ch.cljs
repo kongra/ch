@@ -1,3 +1,5 @@
 (ns ^:figwheel-always kongra.ch)
 
-(println "Teściorek")
+(defn errMsg
+  [x]
+  (if (nil? x) "nil" (str x)))

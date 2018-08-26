@@ -13,3 +13,4 @@
 /target/
 figwheel_server.log
 pom.xml*
+.rebel_readline_history
