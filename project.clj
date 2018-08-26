@@ -40,13 +40,20 @@
                                    :asset-path           "js/compiled/out"
                                    :output-to            "resources/public/js/compiled/ch.js"
                                    :output-dir           "resources/public/js/compiled/out"
-                                   :source-map-timestamp true }}
+                                   :source-map-timestamp true
+                                   :pretty-print         true
+                                   :optimize-constants   true
+                                   }}
                        {:id "min"
                         :source-paths ["src/cljs"]
                         :compiler {:output-to            "resources/public/js/compiled/ch.js"
                                    :main                  kongra.ch
-                                   :static-fns            true
                                    :optimizations         :advanced
-                                   :pretty-print          false }}]}
+                                   :static-fns            true
+                                   :fn-invoke-direct      true
+                                   :pretty-print          false
+                                   :verbose               true
+                                   :elide-asserts         true
+                                   }}]}
 
   :figwheel { :css-dirs ["resources/public/css"] })
