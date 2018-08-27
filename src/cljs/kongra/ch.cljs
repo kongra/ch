@@ -6,6 +6,8 @@
                                              difference   ]])
   (:require-macros [kongra.ch.macros :refer [chP chC chReg]]))
 
+(set! *assert* false)
+
 ;; REGISTRY
 (def chsreg (atom {}))
 
@@ -112,6 +114,3 @@
                 (map #(set (chs %)))
                 (reduce difference)
                 sort)))
-
-(println (str chString))
-(println (str (chListOf chNonBlank)))
