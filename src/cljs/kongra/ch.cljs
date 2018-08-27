@@ -112,3 +112,6 @@
                 (map #(set (chs %)))
                 (reduce difference)
                 sort)))
+
+(println (str chString))
+(println (str (chListOf chNonBlank)))

@@ -5,39 +5,49 @@
 (defmacro chP
   [expr]
   (let [x (symbol "x")]
-    `(fn [~x]
-       (assert ~expr (kongra.ch/errMessage ~x))
-       ~x)))
+    (if *assert*
+      `(fn [~x] (assert ~expr (kongra.ch/errMessage ~x)) ~x)
+      `(fn [~x] ~x))))
 
 (defmacro chC
   [expr]
   (let [x (symbol "x")]
-    `(fn
-       ([check#]
-        (fn [~x]
-          (assert ~expr (kongra.ch/errMessage ~x))
-          (doseq [e# ~x] (check# e#))
-          ~x))
+    (if *assert*
+      `(fn
+        ([check#]
+         (fn [~x]
+           (assert ~expr (kongra.ch/errMessage ~x))
+           (doseq [e# ~x] (check# e#))
+           ~x))
 
-       ([check# ~x]
-        (assert ~expr (kongra.ch/errMessage ~x))
-        (doseq [e# ~x] (check# e#))
-        ~x))))
+        ([check# ~x]
+         (assert ~expr (kongra.ch/errMessage ~x))
+         (doseq [e# ~x] (check# e#))
+         ~x))
+
+      `(fn
+         ([check#   ] (fn [~x] x))
+         ([check# ~x] ~x)))))
 
 (defmacro chD
   [expr]
   (let [x (symbol "x")]
-    `(fn
-       ([check#]
-        (fn [~x]
+    (if *assert*
+      `(fn
+         ([check#]
+          (fn [~x]
+            (assert ~expr (kongra.ch/errMessage ~x))
+            (check# (deref ~x))
+            ~x))
+
+         ([check# ~x]
           (assert ~expr (kongra.ch/errMessage ~x))
           (check# (deref ~x))
           ~x))
 
-       ([check# ~x]
-        (assert ~expr (kongra.ch/errMessage ~x))
-        (check# (deref ~x))
-        ~x))))
+      `(fn
+         ([check#   ] (fn [~x] x))
+         ([check# ~x] ~x)))))
 
 (defmacro chReg
   ([check]
