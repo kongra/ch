@@ -41,26 +41,36 @@
 (def ch0+Double (chP (and (double? x) (>= x  0)))) (chReg  ch0+Double)
 
 ;; CLJS CH(ECK)S
-(def chColl        (chC (coll?        x)))  (chReg "chColl"        (chColl        chIdent))
-(def chList        (chC (list?        x)))  (chReg "chList"        (chList        chIdent))
-(def chVector      (chC (vector?      x)))  (chReg "chVector"      (chVector      chIdent))
-(def chSet         (chC (set?         x)))  (chReg "chSet"         (chSet         chIdent))
-(def chSeq         (chC (seq?         x)))  (chReg "chSeq"         (chSeq         chIdent))
+(def chColl          (chP (coll?        x)))  (chReg        chColl)
+(def chList          (chP (list?        x)))  (chReg        chList)
+(def chVector        (chP (vector?      x)))  (chReg      chVector)
+(def chSet           (chP (set?         x)))  (chReg         chSet)
+(def chSeq           (chP (seq?         x)))  (chReg         chSeq)
 
-(def chNonEmpty    (chC (not (empty?  x)))) (chReg "chNonEmpty"    (chNonEmpty    chIdent))
-(def chSequential  (chC (sequential?  x)))  (chReg "chSequential"  (chSequential  chIdent))
-(def chAssociative (chC (associative? x)))  (chReg "chAssociative" (chAssociative chIdent))
-(def chSorted      (chC (sorted?      x)))  (chReg "chSorted"      (chSorted      chIdent))
-(def chCounted     (chC (counted?     x)))  (chReg "chCounted"     (chCounted     chIdent))
-(def chReversible  (chC (reversible?  x)))  (chReg "chReversible"  (chReversible  chIdent))
+(def chCollOf        (chC (coll?        x)))
+(def chListOf        (chC (list?        x)))
+(def chVectorOf      (chC (vector?      x)))
+(def chSetOf         (chC (set?         x)))
+(def chSeqOf         (chC (seq?         x)))
 
-(def chMap
-  (chP (map? x)))
-(chReg  chMap)
+(def chNonEmpty      (chP (not (empty?  x)))) (chReg    chNonEmpty)
+(def chSequential    (chP (sequential?  x)))  (chReg  chSequential)
+(def chAssociative   (chP (associative? x)))  (chReg chAssociative)
+(def chSorted        (chP (sorted?      x)))  (chReg      chSorted)
+(def chCounted       (chP (counted?     x)))  (chReg     chCounted)
+(def chReversible    (chP (reversible?  x)))  (chReg  chReversible)
 
-(def chAtom
-  (chP (instance? cljs.core/Atom x)))
-(chReg   chAtom)
+(def chNonEmptyOf    (chC (not (empty?  x))))
+(def chSequentialOf  (chC (sequential?  x)))
+(def chAssociativeOf (chC (associative? x)))
+(def chSortedOf      (chC (sorted?      x)))
+(def chCountedOf     (chC (counted?     x)))
+(def chReversibleOf  (chC (reversible?  x)))
+
+(def chMap (chP (map? x))) (chReg chMap)
+
+(def chAtom   (chP (instance? cljs.core/Atom x))) (chReg chAtom)
+(def chAtomOf (chC (instance? cljs.core/Atom x)))
 
 (def chNonBlank
   (chP
@@ -81,24 +91,24 @@
 
 (defn chs
   [x]
-  (chSeq chString
-         (->> @chsreg
-              (map (fn [[name check]] (when (asPred check x) name)))
-              (filter some?)
-              sort)))
+  (chSeqOf chString
+           (->> @chsreg
+                (map (fn [[name check]] (when (asPred check x) name)))
+                (filter some?)
+                sort)))
 
 (defn chsAll
   [& xs]
-  (chSeq chString
-         (->> xs
-              (map #(set (chs %)))
-              (reduce intersection)
-              sort)))
+  (chSeqOf chString
+           (->> xs
+                (map #(set (chs %)))
+                (reduce intersection)
+                sort)))
 
 (defn chsDiff
   [& xs]
-  (chSeq chString
-         (->> xs
-              (map #(set (chs %)))
-              (reduce difference)
-              sort)))
+  (chSeqOf chString
+           (->> xs
+                (map #(set (chs %)))
+                (reduce difference)
+                sort)))

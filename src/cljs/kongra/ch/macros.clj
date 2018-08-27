@@ -13,17 +13,30 @@
   [expr]
   (let [x (symbol "x")]
     `(fn
-       ;; FUNCTOR (CONTAINTER) ONLY CH(ECK)
        ([check#]
         (fn [~x]
           (assert ~expr (kongra.ch/errMessage ~x))
           (doseq [e# ~x] (check# e#))
           ~x))
 
-       ;; FUNCTOR (CONTAINER) CH(ECK) + check# ON ITS ELEMENTS
        ([check# ~x]
         (assert ~expr (kongra.ch/errMessage ~x))
         (doseq [e# ~x] (check# e#))
+        ~x))))
+
+(defmacro chD
+  [expr]
+  (let [x (symbol "x")]
+    `(fn
+       ([check#]
+        (fn [~x]
+          (assert ~expr (kongra.ch/errMessage ~x))
+          (check# (deref ~x))
+          ~x))
+
+       ([check# ~x]
+        (assert ~expr (kongra.ch/errMessage ~x))
+        (check# (deref ~x))
         ~x))))
 
 (defmacro chReg
