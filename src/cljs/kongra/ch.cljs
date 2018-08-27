@@ -1,10 +1,10 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2018-08-25
 (ns ^:figwheel-always kongra.ch
-  (:require        [clojure.string   :refer [blank?      ]]
+  (:require        [clojure.string   :refer [blank?       ]]
                    [clojure.set      :refer [intersection
-                                             difference  ]])
-  (:require-macros [kongra.ch.macros :refer [chP chReg   ]]))
+                                             difference   ]])
+  (:require-macros [kongra.ch.macros :refer [chP chC chReg]]))
 
 ;; REGISTRY
 (def chsreg (atom {}))
@@ -17,6 +17,7 @@
        "and typeof "         (-> js/goog   (.typeOf                  x))))
 
 ;; ESSENTIAL CH(ECK)S
+(def chIdent    (fn [x] x))
 (def chString   (chP (string?  x))) (chReg chString)
 (def chUnit     (chP (nil?     x))) (chReg   chUnit)
 (def chSome     (chP (some?    x))) (chReg   chSome)
@@ -40,19 +41,22 @@
 (def ch0+Double (chP (and (double? x) (>= x  0)))) (chReg  ch0+Double)
 
 ;; CLJS CH(ECK)S
-(def chColl   (chP (coll?   x))) (chReg   chColl)
-(def chList   (chP (list?   x))) (chReg   chList)
-(def chVector (chP (vector? x))) (chReg chVector)
-(def chSet    (chP (set?    x))) (chReg    chSet)
-(def chMap    (chP (map?    x))) (chReg    chMap)
-(def chSeq    (chP (seq?    x))) (chReg    chSeq)
+(def chColl        (chC (coll?        x)))  (chReg "chColl"        (chColl        chIdent))
+(def chList        (chC (list?        x)))  (chReg "chList"        (chList        chIdent))
+(def chVector      (chC (vector?      x)))  (chReg "chVector"      (chVector      chIdent))
+(def chSet         (chC (set?         x)))  (chReg "chSet"         (chSet         chIdent))
+(def chSeq         (chC (seq?         x)))  (chReg "chSeq"         (chSeq         chIdent))
 
-(def chNonEmpty    (chP (not (empty?  x)))) (chReg    chNonEmpty)
-(def chSequential  (chP (sequential?  x)))  (chReg  chSequential)
-(def chAssociative (chP (associative? x)))  (chReg chAssociative)
-(def chSorted      (chP (sorted?      x)))  (chReg      chSorted)
-(def chCounted     (chP (counted?     x)))  (chReg     chCounted)
-(def chReversible  (chP (reversible?  x)))  (chReg  chReversible)
+(def chNonEmpty    (chC (not (empty?  x)))) (chReg "chNonEmpty"    (chNonEmpty    chIdent))
+(def chSequential  (chC (sequential?  x)))  (chReg "chSequential"  (chSequential  chIdent))
+(def chAssociative (chC (associative? x)))  (chReg "chAssociative" (chAssociative chIdent))
+(def chSorted      (chC (sorted?      x)))  (chReg "chSorted"      (chSorted      chIdent))
+(def chCounted     (chC (counted?     x)))  (chReg "chCounted"     (chCounted     chIdent))
+(def chReversible  (chC (reversible?  x)))  (chReg "chReversible"  (chReversible  chIdent))
+
+(def chMap
+  (chP (map? x)))
+(chReg  chMap)
 
 (def chAtom
   (chP (instance? cljs.core/Atom x)))
@@ -77,24 +81,24 @@
 
 (defn chs
   [x]
-  (chSeq
-   (->> @chsreg
-        (map (fn [[name check]] (when (asPred check x) name)))
-        (filter some?)
-        sort)))
+  (chSeq chString
+         (->> @chsreg
+              (map (fn [[name check]] (when (asPred check x) name)))
+              (filter some?)
+              sort)))
 
 (defn chsAll
   [& xs]
-  (chSeq
-   (->> xs
-        (map #(set (chs %)))
-        (reduce intersection)
-        sort)))
+  (chSeq chString
+         (->> xs
+              (map #(set (chs %)))
+              (reduce intersection)
+              sort)))
 
 (defn chsDiff
   [& xs]
-  (chSeq
-   (->> xs
-        (map #(set (chs %)))
-        (reduce difference)
-        sort)))
+  (chSeq chString
+         (->> xs
+              (map #(set (chs %)))
+              (reduce difference)
+              sort)))
