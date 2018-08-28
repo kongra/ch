@@ -21,8 +21,8 @@
                                  [cider/cider-nrepl       "0.17.0"]]}}
   :aot          :all
 
-  :source-paths ["src/clj" "test/clj"]
-  :test-paths   ["test"]
+  :source-paths ["src/main/clojure"]
+  :test-paths   ["test/clojure"]
 
   :global-vars  {*warn-on-reflection* true
                  *print-length*       500}
@@ -33,9 +33,9 @@
 
   :cljsbuild {
               :builds [{:id "dev"
-                        :source-paths ["test/cljs" "src/cljs"]
-                        :figwheel {:on-jsload            "kongra.ch.test/onJSreload"}
-                        :compiler {:main                 kongra.ch.test
+                        :source-paths ["test/clojure/cljs" "src/main/clojure/cljs"]
+                        :figwheel {:on-jsload            "cljs.kongra.ch-test/onJSreload"}
+                        :compiler {:main                 cljs.kongra.ch-test
                                    :asset-path           "js/compiled/out"
                                    :output-to            "resources/public/js/compiled/ch.js"
                                    :output-dir           "resources/public/js/compiled/out"
@@ -44,14 +44,13 @@
                                    :optimize-constants   true
                                    }}
                        {:id "min"
-                        :source-paths ["src/cljs"]
+                        :source-paths ["src/main/clojure/cljs"]
                         :compiler {:output-to            "resources/public/js/compiled/ch.js"
-                                   :main                  kongra.ch
+                                   :main                  cljs.kongra.ch
                                    :optimizations         :advanced
                                    :static-fns            true
                                    :fn-invoke-direct      true
                                    :pretty-print          false
-                                   :verbose               true
                                    :elide-asserts         true
                                    }}]}
 

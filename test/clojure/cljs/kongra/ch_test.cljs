@@ -1,6 +1,6 @@
-(ns ^:figwheel-always kongra.ch.test
-  (:require [reagent.core :as  r]
-            [kongra.ch    :as ch]))
+(ns ^:figwheel-always cljs.kongra.ch-test
+  (:require [reagent.core   :as  r]
+            [cljs.kongra.ch :as ch]))
 
 (enable-console-print!)
 

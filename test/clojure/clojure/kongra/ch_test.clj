@@ -1,8 +1,8 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(ns kongra.ch-test
-  (:require [clojure.test :refer :all]
-            [kongra.ch :refer :all]))
+(ns clojure.kongra.ch-test
+  (:require [clojure.test      :refer :all]
+            [clojure.kongra.ch :refer :all]))
 
 (deftype X []) (defchC chX X)
 (deftype Y []) (defchC chY Y)
