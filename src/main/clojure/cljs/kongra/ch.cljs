@@ -50,11 +50,9 @@
 (def chSet           (chP (set?         x)))  (chReg         chSet)
 (def chSeq           (chP (seq?         x)))  (chReg         chSeq)
 
-(def chCollOf        (chC (coll?        x)))
 (def chListOf        (chC (list?        x)))
 (def chVectorOf      (chC (vector?      x)))
 (def chSetOf         (chC (set?         x)))
-(def chSeqOf         (chC (seq?         x)))
 
 (def chNonEmpty      (chP (not (empty?  x)))) (chReg    chNonEmpty)
 (def chSequential    (chP (sequential?  x)))  (chReg  chSequential)
@@ -64,7 +62,6 @@
 (def chReversible    (chP (reversible?  x)))  (chReg  chReversible)
 
 (def chNonEmptyOf    (chC (not (empty?  x))))
-(def chSequentialOf  (chC (sequential?  x)))
 (def chAssociativeOf (chC (associative? x)))
 (def chSortedOf      (chC (sorted?      x)))
 (def chCountedOf     (chC (counted?     x)))
@@ -94,24 +91,24 @@
 
 (defn chs
   [x]
-  (chSeqOf chString
-           (->> @chsreg
-                (map (fn [[name check]] (when (asPred check x) name)))
-                (filter some?)
-                sort)))
+  (chSeq
+   (->> @chsreg
+        (map (fn [[name check]] (when (asPred check x) name)))
+        (filter some?)
+        sort)))
 
 (defn chsAll
   [& xs]
-  (chSeqOf chString
-           (->> xs
-                (map #(set (chs %)))
-                (reduce intersection)
-                sort)))
+  (chSeq
+   (->> xs
+        (map #(set (chs %)))
+        (reduce intersection)
+        sort)))
 
 (defn chsDiff
   [& xs]
-  (chSeqOf chString
-           (->> xs
-                (map #(set (chs %)))
-                (reduce difference)
-                sort)))
+  (chSeq
+   (->> xs
+        (map #(set (chs %)))
+        (reduce difference)
+        sort)))
