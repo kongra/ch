@@ -1,14 +1,17 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.9-SNAPSHOT"
-  :description "Low-cost dynamic type checks for ADTs"
+(defproject kongra/ch "0.1.10"
+  :description "Low-cost dynamic type and constraints checks"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure          "1.9.0"]
+  :dependencies [[org.clojure/clojure         "1.10.0"]
                  [primitive-math               "0.1.6"]
-                 [org.clojure/clojurescript "1.10.339"]
+                 [org.clojure/clojurescript "1.10.439"
+                  :exclusions [com.google.errorprone/error_prone_annotations
+                               com.google.code.findbugs/jsr305]]
+
                  [reagent                      "0.8.1"]]
 
   :plugins      [[lein-cljsbuild               "1.1.7"]
