@@ -7,8 +7,6 @@
                    [cljs.pprint           :refer [pprint       ]])
   (:require-macros [cljs.kongra.ch.macros :refer [chP chC chReg]]))
 
-(set! *assert* false)
-
 ;; REGISTRY
 (def chsreg (atom {}))
 
@@ -17,7 +15,7 @@
   [x]
   (str "ch(eck) failed on\n" (with-out-str (pprint       x))
        "of type "            (with-out-str (pprint (type x)))
-       "and typeof "         (-> js/goog   (.typeOf                  x))))
+       "and typeof "         (-> js/goog   (.typeOf      x))))
 
 ;; ESSENTIAL CH(ECK)S
 (def chIdent    (fn [x] x))

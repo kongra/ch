@@ -1,253 +1,194 @@
 ;; Copyright (c) Konrad Grzanek
-;; Created 2016-10-05
+;; Created     2016-10-05
+;; Re-designed 2018-12-21
 (ns clojure.kongra.ch
-  (:require [clojure.set    :as cset]
-            [primitive-math :as    p]))
+  (:require
+   [clojure.set
+    :refer [intersection difference]]
 
-;; PREDICATE (CLOJURE PROC.)
+   [clojure.string
+    :refer [blank?]]
 
-(defn chmsg
+   [primitive-math :as p]))
+
+;; CH(ECK)S
+(defn errMessage
   [x]
   (with-out-str
-    (print "Illegal value ") (pr        x)
-    (print " of type "     ) (pr (class x))))
+    (print "ch(eck) failed on\n") (pr        x)
+    (print " of type ")           (pr (class x))))
 
-(defn- pred-call-form
-  ([form x]
-   (let [form (if (symbol? form) (vector form) form)]
-     (seq (conj (vec form) x))))
+(defmacro chP
+  [expr]
+  (let [x (symbol "x")]
+    `(fn [~x] (assert ~expr (clojure.kongra.ch/errMessage ~x)) ~x)))
 
-  ([form asPred x]
-   (when-not (identical? asPred :asPred)
-     (throw (IllegalArgumentException. ":asPred must be used here")))
-   (let [form (if (symbol? form) (vector form) form)]
-     (concat form (list asPred x)))))
+(defmacro chC
+  [expr]
+  (let [x (symbol "x")]
+    `(fn
+       ([check#]
+        (fn [~x]
+          (assert ~expr (cljs.kongra.ch/errMessage ~x))
+          (doseq [e# ~x] (check# e#))
+          ~x))
 
-(defmacro ch {:style/indent 1}
-  ([pred x]
-   (let [x'   (gensym "x__")
-         form (pred-call-form pred x')]
-     `(let [~x' ~x] (assert ~form (chmsg ~x')) ~x')))
-
-  ([pred asPred x]
-   (when-not (identical? asPred :asPred)
-     (throw (IllegalArgumentException. ":asPred must be used here")))
-
-   (let [form (pred-call-form pred x)]
-     `(boolean ~form))))
-
-;; GENERATOR
-
-(defn- insert-noparam
-  [noparam params]
-  (vec (concat (butlast params)
-               (list noparam)
-               (when (seq params) (list (last params))))))
-
-(defn- insert-noarg
-  [noarg form]
-  (let [;; lein eastwood passes a wrapper (sequence <form>), let's
-        ;; strip it down:
-        form (if (= (first form) `sequence) (second form) form)
-        [ccseq [cconcat & cclists]] form]
-    (assert (=  ccseq        `seq) (str "Illegal ccseq "     ccseq " in " form))
-    (assert (=  cconcat   `concat) (str "Illegal cconcat " cconcat " in " form))
-    (assert (>= (count cclists) 2) (str "Illegal cclists " cclists " in " form))
-    (let [lsts   (butlast  cclists)
-          lst    (last     cclists)
-          noarg `(list      ~noarg)]
-      `(seq (concat ~@lsts ~noarg ~lst)))))
-
-(defn- append-arg
-  [form x]
-  (let [;; lein eastwood passes a wrapper (sequence <form>), let's
-        ;; strip it down:
-        form (if (= (first form) `sequence) (second form) form)
-        [ccseq [cconcat & cclists]] form]
-    (assert (=  ccseq        `seq) (str "Illegal ccseq "     ccseq " in " form))
-    (assert (=  cconcat   `concat) (str "Illegal cconcat " cconcat " in " form))
-    (assert (>= (count cclists) 2) (str "Illegal cclists " cclists " in " form))
-    (let [arg `(list ~x)]
-      `(seq (concat ~@cclists ~arg)))))
-
-(defmacro defch {:style/indent 1}
-  ([chname form]
-   (let [x     (gensym "x__")
-         form+ (append-arg form x) ]
-     `(defch ~chname [~x] ~form+)))
-
-  ([chname args form]
-   (assert (vector? args))
-   (let [asPred (gensym          "asPred__")
-         args+  (insert-noparam asPred args)
-         form+  (insert-noarg   asPred form)]
-     `(defmacro ~chname {:style/indent 1}
-        (~args  ~form )
-        (~args+ ~form+)))))
-
-;; CLASS MEMBERSHIP
-
-(defch chC [c x] `(ch (instance? ~c) ~x))
-
-(defmacro defchC
-  [chname c]
-  (let [x (gensym "x__")]
-    `(defch ~chname [~x] `(chC ~~c ~~x))))
-
-;; SATISFYING PROTOCOLS
-
-(defch chP [p x] `(ch (satisfies? ~p) ~x))
+       ([check# ~x]
+        (assert ~expr (cljs.kongra.ch/errMessage ~x))
+        (doseq [e# ~x] (check# e#))
+        ~x))))
 
 (defmacro defchP
-  [chname p]
-  (let [x (gensym "x__")]
-    `(defch ~chname [~x] `(chP ~(quote ~p) ~~x))))
+  [name expr]
+  (let [name (vary-meta name assoc
+                        :arglists `'([~(symbol "x")])
+                        :style/indent [0])]
+    `(def ~name (chP ~expr))))
 
-;; UNIT (NIL)
+(defmacro defchC
+  [name expr]
+  (let [name (vary-meta name assoc
+                        :arglists `'([~(symbol "x")]
+                                     [~(symbol "check") ~(symbol "x")])
+                        :style/indent [0])]
+    `(def ~name (chC ~expr))))
 
-(defch chUnit [x] `(ch nil? ~x))
+(defn chMaybe [check x] (if (nil? x) x (check x)))
 
-;; NON-UNIT (NOT-NIL)
+(defchP chUnit (nil?  x))
+(defchP chSome (some? x))
 
-(defn not-nil?
-  {:inline (fn [x] `(if (nil? ~x) false true))}
-               [x]  (if (nil?  x) false true))
+;; REGISTRY
+(def ^:private chsreg (atom {}))
 
-(defch chSome [x] `(ch not-nil? ~x))
+(defmacro chReg
+  ([check]
+   (let [name (str check)]
+     `(chReg ~name ~check)))
 
-;; OBJECT TYPE EQUALITY
+  ([name check]
+   `(let [name# (str ~name)]
+      (assert (fn? ~check))
+      (swap! chsreg
+             (fn [m#]
+               (when (m# name#)
+                 (println "WARNING: (ch)eck name already in use:" name#))
+               (assoc m# name# ~check)))
+      nil)))
 
-(defmacro chLike* [y x] `(identical? (class ~y) (class ~x)))
-(defch    chLike  [y x] `(ch (chLike* ~y) ~x))
+;; COMMON CH(ECK)S
+(defchP chAgent      (instance? clojure.lang.Agent      x)) (chReg      chAgent)
+(defchP chAtom       (instance? clojure.lang.Atom       x)) (chReg       chAtom)
+(defchP chASeq       (instance? clojure.lang.ASeq       x)) (chReg       chASeq)
+(defchP chBool       (instance? Boolean                 x)) (chReg       chBool)
+(defchP chDeref      (instance? clojure.lang.IDeref     x)) (chReg      chDeref)
+(defchP chIndexed    (instance? clojure.lang.Indexed    x)) (chReg    chIndexed)
+(defchP chLazy       (instance? clojure.lang.LazySeq    x)) (chReg       chLazy)
+(defchP chLookup     (instance? clojure.lang.ILookup    x)) (chReg     chLookup)
+(defchP chRef        (instance? clojure.lang.Ref        x)) (chReg        chRef)
+(defchP chSeqable    (instance? clojure.lang.Seqable    x)) (chReg    chSeqable)
+(defchP chSequential (instance? clojure.lang.Sequential x)) (chReg chSequential)
 
-;; PRODUCT AND CO-PRODUCT (DISCRIMINATED UNION)
+(defchP chAssoc      (associative? x)) (chReg      chAssoc)
+(defchP chChar       (char?        x)) (chReg       chChar)
+(defchP chClass      (class?       x)) (chReg      chClass)
+(defchP chColl       (coll?        x)) (chReg       chColl)
+(defchP chCounted    (counted?     x)) (chReg    chCounted)
+(defchP chDelay      (delay?       x)) (chReg      chDelay)
+(defchP chFn         (fn?          x)) (chReg         chFn)
+(defchP chFuture     (future?      x)) (chReg     chFuture)
+(defchP chIfn        (ifn?         x)) (chReg        chIfn)
+(defchP chInteger    (integer?     x)) (chReg    chInteger)
+(defchP chKeyword    (keyword?     x)) (chReg    chKeyword)
+(defchP chList       (list?        x)) (chReg       chList)
+(defchP chMap        (map?         x)) (chReg        chMap)
+(defchP chSet        (set?         x)) (chReg        chSet)
+(defchP chRecord     (record?      x)) (chReg     chRecord)
+(defchP chReduced    (reduced?     x)) (chReg    chReduced)
+(defchP chReversible (reversible?  x)) (chReg chReversible)
+(defchP chSeq        (seq?         x)) (chReg        chSeq)
+(defchP chSorted     (sorted?      x)) (chReg     chSorted)
+(defchP chString     (string?      x)) (chReg     chString)
+(defchP chSymbol     (symbol?      x)) (chReg     chSymbol)
+(defchP chVar        (var?         x)) (chReg        chVar)
+(defchP chVector     (vector?      x)) (chReg     chVector)
 
-(defmacro ch*
-  [op chs x]
-  (assert (vector? chs) "Must be a chs vector in (ch| ...)")
-  (assert (seq     chs) "(ch| ...) must contain some chs"  )
-  `(~op ~@(map #(pred-call-form % :asPred x) chs)))
+(defchP chJavaColl   (instance? java.util.Collection x)) (chReg chJavaColl)
+(defchP chJavaList   (instance? java.util.List       x)) (chReg chJavaList)
+(defchP chJavaMap    (instance? java.util.Map        x)) (chReg  chJavaMap)
+(defchP chJavaSet    (instance? java.util.Set        x)) (chReg  chJavaSet)
 
-(defch ch& [chs x] `(ch (ch* and ~chs) ~x))
-(defch ch| [chs x] `(ch (ch* or  ~chs) ~x))
+(defchP chNonBlank (not (blank? x))) (chReg chNonBlank)
 
-(defch chEither [chl chr x] `(ch| [~chl  ~chr]    ~x))
-(defch chMaybe  [ch      x] `(chEither chUnit ~ch ~x))
+;; PRIMITIVE NUMBERS CH(ECK)S
+(defn chLong ^long [^long x] x) (chReg chLong)
 
-;; CHS REGISTRY
+(defn chNatLong ^long
+  [^long x]
+  (assert (p/>= x 0) (errMessage x))
+  x)
 
-(def ^:private CHS (atom {}))
+(chReg chNatLong)
 
-(defn regch*
-  [chname ch]
-  (chUnit
-   (do
-     (assert (string? chname))
-     (assert (fn?         ch))
-     (swap! CHS
-            (fn [m]
-              (when (m chname)
-                (println "WARNING: chname already in use:" chname))
-              (assoc m chname ch))) nil)))
+(defn chPosLong ^long
+  [^long x]
+  (assert (p/> x 0) (errMessage x))
+  x)
 
-(defmacro regch
-  [ch]
-  (assert (symbol? ch))
-  (let [x (gensym "x__")]
-    `(regch* ~(str ch) (fn [~x] ~(pred-call-form ch :asPred x)))))
+(chReg chPosLong)
 
-(defchC chSet clojure.lang.IPersistentSet) (regch chSet)
+(defn chLongIn ^long
+  [^long m ^long n ^long x]
+  (assert (<= m n))
+  (assert (p/<= m x) (errMessage x))
+  (assert (p/<= x n) (errMessage x))
+  x)
+
+(defn chDouble ^double [^double x] x) (chReg chDouble)
+
+(defn chDoubleIn ^double
+  [^double a ^double b ^double x]
+  (assert (<= a b))
+  (assert (p/<= a x) (errMessage x))
+  (assert (p/<= x b) (errMessage x))
+  x)
+
+(defchP chFloat    (float?    x)) (chReg    chFloat)
+(defchP chDecimal  (decimal?  x)) (chReg  chDecimal)
+(defchP chNumber   (number?   x)) (chReg   chNumber)
+(defchP chRatio    (ratio?    x)) (chReg    chRatio)
+(defchP chRational (rational? x)) (chReg chRational)
+
+;; REGISTRY QUERYING
+(defn asPred
+  [check x]
+  (chBool
+   (try
+     (check x)                     true
+     (catch AssertionError       _ false)
+     (catch ClassCastException   _ false)
+     (catch NullPointerException _ false))))
 
 (defn chs
-  ([]
-   (chSet (apply sorted-set (sort (keys @CHS)))))
+  [x]
+  (chSeq
+   (->> @chsreg
+        (map (fn [[name check]] (when (asPred check x) name)))
+        (filter some?)
+        sort)))
 
-  ([x]
-   (chSet (->> @CHS
-               (filter (fn [[_ pred]] (pred x)))
-               (map first)
-               (apply sorted-set))))
-  ([x & xs]
-    (chSet (->> (cons x xs) (map chs) (apply cset/intersection)))))
-
-(defn chdiffs
+(defn chsAll
   [& xs]
-  (chSet (->> xs (map chs) (apply cset/difference))))
+  (chSeq
+   (->> xs
+        (map #(set (chs %)))
+        (reduce intersection)
+        sort)))
 
-;; COMMON CHS
-
-(defchC chAgent           clojure.lang.Agent) (regch      chAgent)
-(defchC chAtom             clojure.lang.Atom) (regch       chAtom)
-(defchC chASeq             clojure.lang.ASeq) (regch       chASeq)
-(defchC chBoolean                    Boolean) (regch    chBoolean)
-(defchC chDeref          clojure.lang.IDeref) (regch      chDeref)
-(defchC chDouble                      Double) (regch     chDouble)
-(defchC chIndexed       clojure.lang.Indexed) (regch    chIndexed)
-(defchC chLazy          clojure.lang.LazySeq) (regch       chLazy)
-(defchC chLong                          Long) (regch       chLong)
-(defchC chLookup        clojure.lang.ILookup) (regch     chLookup)
-(defchC chRef               clojure.lang.Ref) (regch        chRef)
-(defchC chSeqable       clojure.lang.Seqable) (regch    chSeqable)
-(defchC chSequential clojure.lang.Sequential) (regch chSequential)
-
-(defch  chAssoc           `(ch associative?)) (regch      chAssoc)
-(defch  chChar                   `(ch char?)) (regch       chChar)
-(defch  chClass                 `(ch class?)) (regch      chClass)
-(defch  chColl                   `(ch coll?)) (regch       chColl)
-(defch  chCounted             `(ch counted?)) (regch    chCounted)
-(defch  chDecimal             `(ch decimal?)) (regch    chDecimal)
-(defch  chDelay                 `(ch delay?)) (regch      chDelay)
-(defch  chFloat                 `(ch float?)) (regch      chFloat)
-(defch  chFn                       `(ch fn?)) (regch         chFn)
-(defch  chFuture               `(ch future?)) (regch     chFuture)
-(defch  chIfn                     `(ch ifn?)) (regch        chIfn)
-(defch  chInteger             `(ch integer?)) (regch    chInteger)
-(defch  chKeyword             `(ch keyword?)) (regch    chKeyword)
-(defch  chList                   `(ch list?)) (regch       chList)
-(defch  chMap                     `(ch map?)) (regch        chMap)
-(defch  chNumber               `(ch number?)) (regch     chNumber)
-(defch  chRatio                 `(ch ratio?)) (regch      chRatio)
-(defch  chRational           `(ch rational?)) (regch   chRational)
-(defch  chRecord               `(ch record?)) (regch     chRecord)
-(defch  chReduced             `(ch reduced?)) (regch    chReduced)
-(defch  chReversible       `(ch reversible?)) (regch chReversible)
-(defch  chSeq                     `(ch seq?)) (regch        chSeq)
-(defch  chSorted               `(ch sorted?)) (regch     chSorted)
-(defch  chString               `(ch string?)) (regch     chString)
-(defch  chSymbol               `(ch symbol?)) (regch     chSymbol)
-(defch  chVar                     `(ch var?)) (regch        chVar)
-(defch  chVec                  `(ch vector?)) (regch        chVec)
-
-(defchC chJavaColl      java.util.Collection) (regch   chJavaColl)
-(defchC chJavaList            java.util.List) (regch   chJavaList)
-(defchC chJavaMap              java.util.Map) (regch    chJavaMap)
-(defchC chJavaSet              java.util.Set) (regch    chJavaSet)
-
-;; POSITIVE/NATURAL INTEGRALS (LONGS)
-
-(defn pos-long? [^long n] (p/>  n 0))
-(defn nat-long? [^long n] (p/>= n 0))
-
-(defch chPoslong `(ch pos-long?))
-(defch chNatlong `(ch nat-long?))
-
-(defn pos-Long?
-  [n]
-  (and (chLong :asPred n) (pos-long? (.longValue ^Long n))))
-
-(defn nat-Long?
-  [n]
-  (and (chLong :asPred n) (nat-long? (.longValue ^Long n))))
-
-(defch chPosLong `(ch pos-Long?)) (regch chPosLong)
-(defch chNatLong `(ch nat-Long?)) (regch chNatLong)
-
-;; INTEGRALS (LONGS) IN RANGE
-
-(defn long-in?
-  [^long start ^long end ^long n]
-  (and (p/>= n start) (p/<= n end)))
-
-(defn Long-in?
-  [^long start ^long end n]
-  (and (chLong :asPred n) (long-in? start end (.longValue ^Long n))))
+(defn chsDiff
+  [& xs]
+  (chSeq
+   (->> xs
+        (map #(set (chs %)))
+        (reduce difference)
+        sort)))
