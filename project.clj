@@ -33,7 +33,10 @@
 
   :profiles {:repl {:dependencies [[org.clojure/tools.nrepl "0.2.13"]]
                     :plugins      [[lein-nodisassemble      "0.1.3" ]
-                                   [cider/cider-nrepl       "0.18.0"]]}
+                                   [cider/cider-nrepl       "0.19.0"
+                                    :exclusions [org.clojure/tools.cli
+                                                 org.clojure/tools.namespace
+                                                 rewrite-clj]]]}
 
              :dev  {:dependencies  [[com.bhauman/figwheel-main "0.2.0"
                                      :exclusions [commons-codec args4j]]
@@ -57,4 +60,4 @@
                 :elide-asserts    true
                 }}]}
 
-  :figwheel { :css-dirs ["resources/public/css"] })
+  :figwheel { :css-dirs ["resources/public/css"]})
