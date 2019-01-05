@@ -1,6 +1,6 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.11"
+(defproject kongra/ch "0.1.12"
   :description "Low-cost dynamic type and constraints checks"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
@@ -10,9 +10,7 @@
                  [primitive-math               "0.1.6"]
                  [org.clojure/clojurescript "1.10.439"
                   :exclusions [com.google.errorprone/error_prone_annotations
-                               com.google.code.findbugs/jsr305]]
-
-                 [reagent        "0.8.1"]]
+                               com.google.code.findbugs/jsr305]]]
 
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
