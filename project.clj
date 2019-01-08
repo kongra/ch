@@ -1,6 +1,6 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.12"
+(defproject kongra/ch "0.1.13"
   :description "Low-cost dynamic type and constraints checks"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
@@ -42,13 +42,12 @@
                                     [com.bhauman/rebel-readline-cljs "0.1.4"
                                      :exclusions [args4j]]]
 
-                    :source-paths   ["src/main/clojure/cljs"]
+                    :source-paths   ["src/main/clojure-script"]
                     :resource-paths ["target"]}}
-
   :cljsbuild
   {:builds
    [{:id "min"
-     :source-paths ["src/main/clojure/cljs"]
+     :source-paths ["src/main/clojure-script"]
      :compiler {:output-to       "resources/public/js/compiled/ch.js"
                 :main             cljs.kongra.ch
                 :optimizations    :advanced

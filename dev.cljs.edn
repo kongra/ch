@@ -1,3 +1,3 @@
-^{:watch-dirs   ["src/main/clojure"]
+^{:watch-dirs   ["src/main/clojure-script"]
   :auto-testing false}
 {:main cljs.kongra.ch}
