@@ -15,7 +15,7 @@
   [x]
   (str "ch(eck) failed on\n" (with-out-str (pprint       x))
        "of type "            (with-out-str (pprint (type x)))
-       "and typeof "         (-> js/goog   (.typeOf      x))))
+       "and typeof "         (.typeOf js/goog x)))
 
 ;; ESSENTIAL CH(ECK)S
 (def chIdent    (fn [x] x))
@@ -31,14 +31,14 @@
 (def chArray    (chP (array?   x))) (chReg  chArray)
 
 ;; NUMBERS CH(ECK)S
-(def chPosInt   (chP (and (int?    x) (>  x  0)))) (chReg    chPosInt)
-(def chNegInt   (chP (and (int?    x) (<  x  0)))) (chReg    chNegInt)
+(def chPosInt   (chP (and (int?    x) (pos?  x)))) (chReg    chPosInt)
+(def chNegInt   (chP (and (int?    x) (neg?  x)))) (chReg    chNegInt)
 (def chNatInt   (chP (and (int?    x) (>= x  0)))) (chReg    chNatInt)
 (def chEvenInt  (chP (and (int?    x) (even? x)))) (chReg   chEvenInt)
 (def chOddInt   (chP (and (int?    x) (odd?  x)))) (chReg    chOddInt)
 
-(def chPosDouble(chP (and (double? x) (>  x  0)))) (chReg chPosDouble)
-(def chNegDouble(chP (and (double? x) (<  x  0)))) (chReg chNegDouble)
+(def chPosDouble(chP (and (double? x) (pos? x))))  (chReg chPosDouble)
+(def chNegDouble(chP (and (double? x) (neg? x))))  (chReg chNegDouble)
 (def ch0+Double (chP (and (double? x) (>= x  0)))) (chReg  ch0+Double)
 
 ;; CLJS CH(ECK)S
@@ -52,14 +52,14 @@
 (def chVectorOf      (chC (vector?      x)))
 (def chSetOf         (chC (set?         x)))
 
-(def chNonEmpty      (chP (not (empty?  x)))) (chReg    chNonEmpty)
+(def chNonEmpty      (chP (seq          x)))  (chReg    chNonEmpty)
 (def chSequential    (chP (sequential?  x)))  (chReg  chSequential)
 (def chAssociative   (chP (associative? x)))  (chReg chAssociative)
 (def chSorted        (chP (sorted?      x)))  (chReg      chSorted)
 (def chCounted       (chP (counted?     x)))  (chReg     chCounted)
 (def chReversible    (chP (reversible?  x)))  (chReg  chReversible)
 
-(def chNonEmptyOf    (chC (not (empty?  x))))
+(def chNonEmptyOf    (chC (seq          x)))
 (def chAssociativeOf (chC (associative? x)))
 (def chSortedOf      (chC (sorted?      x)))
 (def chCountedOf     (chC (counted?     x)))
