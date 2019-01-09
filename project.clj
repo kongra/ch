@@ -1,6 +1,6 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.14"
+(defproject kongra/ch "0.1.15"
   :description "Low-cost dynamic type and constraints checks"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
@@ -15,7 +15,7 @@
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
   :aot          :all
-  :source-paths ["src/main/clojure"]
+  :source-paths ["src/main/clojure" "src/main/clojure-script"]
   :test-paths   ["test/clojure"]
 
   :global-vars  {*warn-on-reflection* true
