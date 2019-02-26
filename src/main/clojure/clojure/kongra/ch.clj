@@ -11,6 +11,8 @@
 
    [primitive-math :as p]))
 
+(set! *warn-on-reflection* true)
+
 ;; CH(ECK)S
 (defn errMessage
   [x]
@@ -53,7 +55,7 @@
                         :style/indent [0])]
     `(def ~name (chC ~expr))))
 
-(defn chMaybe [check x] (if (nil? x) x (check x)))
+(defn chOptional [check x] (if (nil? x) x (check x)))
 
 (defchP chUnit (nil?  x))
 (defchP chSome (some? x))

@@ -1,6 +1,6 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.15"
+(defproject kongra/ch "0.1.16"
   :description "Low-cost dynamic type and constraints checks"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
@@ -8,9 +8,7 @@
 
   :dependencies [[org.clojure/clojure         "1.10.0"]
                  [primitive-math               "0.1.6"]
-                 [org.clojure/clojurescript "1.10.439"
-                  :exclusions [com.google.errorprone/error_prone_annotations
-                               com.google.code.findbugs/jsr305]]]
+                 [org.clojure/clojurescript "1.10.520"]]
 
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
@@ -18,29 +16,25 @@
   :source-paths ["src/main/clojure" "src/main/clojure-script"]
   :test-paths   ["test/clojure"]
 
-  :global-vars  {*warn-on-reflection* true
-                 *print-length*       500}
+  :global-vars  {*warn-on-reflection* false
+                 *print-length*         500}
 
-  :pedantic? :warn
+  ;; :pedantic? :warn
 
-  :jvm-opts     ["-Dclojure.compiler.direct-linking=true"]
+  :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :aliases {"fig:repl" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
 
-  :profiles {:repl {:dependencies [[org.clojure/tools.nrepl "0.2.13"]]
-                    :plugins      [[lein-nodisassemble      "0.1.3" ]
-                                   [cider/cider-nrepl       "0.19.0"
-                                    :exclusions [org.clojure/tools.cli
-                                                 org.clojure/tools.namespace
-                                                 rewrite-clj]]]}
+  :profiles {:repl {:plugins [[lein-nodisassemble "0.1.3"]
+                              [cider/cider-nrepl "0.21.0"]]
 
-             :dev  {:dependencies  [[com.bhauman/figwheel-main "0.2.0"
-                                     :exclusions [commons-codec args4j]]
+                    :middleware [lein-nodisassemble.plugin/middleware
+                                 cider-nrepl.plugin/middleware]}
 
-                                    [com.bhauman/rebel-readline-cljs "0.1.4"
-                                     :exclusions [args4j]]]
+             :dev  {:dependencies  [[com.bhauman/figwheel-main "0.2.0"]
+                                    [com.bhauman/rebel-readline-cljs "0.1.4"]]
 
                     :source-paths   ["src/main/clojure-script"]
                     :resource-paths ["target"]}}

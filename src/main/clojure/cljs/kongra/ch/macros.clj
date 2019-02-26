@@ -1,6 +1,7 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2018-08-27
 (ns cljs.kongra.ch.macros)
+(set! *warn-on-reflection* true)
 
 (defmacro chP
   [expr]

@@ -77,7 +77,7 @@
 (chReg chNonBlank)
 
 ;; ADTs CH(ECK)S
-(defn chMaybe [check x] (if (nil? x) x (check x)))
+(defn chOptional [check x] (if (nil? x) x (check x)))
 
 ;; REGISTRY QUERYING
 (defn asPred
