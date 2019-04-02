@@ -7,13 +7,12 @@
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure         "1.10.0"]
-                 [primitive-math               "0.1.6"]
                  [org.clojure/clojurescript "1.10.439"]]
 
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
   :aot          :all
-  :source-paths ["src/main/cljc"]
+  :source-paths ["src/main/clj"]
   :test-paths   ["test/clojure" ]
 
   :global-vars  {*warn-on-reflection* false

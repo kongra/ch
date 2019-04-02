@@ -13,7 +13,7 @@
              :refer [pprint]])
 
    #?(:cljs [cljc.kongra.ch.macros
-             :refer-macros [chP chReg]])))
+             :refer-macros [chP chReg chC]])))
 
 #?(:clj (set! *warn-on-reflection* true))
 
@@ -118,162 +118,177 @@
                                 :style/indent [0])]
             `(def ~name (chC ~expr)))))
 
-;; CHECKS
-(defn chOptional
-  [check x]
-  (if (nil? x) x (check x)))
+;; COMMON CHECKS
+(defn chOptional [check x] (if (nil? x) x (check x)))
 
-#?(:clj  (defchP chUnit      (nil?  x)))
-#?(:cljs (def    chUnit (chP (nil?  x))))
-#?(:clj  (defchP chSome      (some? x)))
-#?(:cljs (def    chSome (chP (some? x))))
+(def chIdent (fn [x]     x))
+(def chUnit  (chP (nil?  x)))
+(def chSome  (chP (some? x)))
 
-#?(:clj  (defchP chAgent (instance? clojure.lang.Agent x)))
-#?(:clj  (chReg  chAgent))
+(def chAtom
+  (chP (instance?
+        #?(:clj  clojure.lang.Atom
+           :cljs    cljs.core/Atom) x))) (chReg chAtom)
 
-#?(:clj  (defchP chAtom      (instance? clojure.lang.Atom x)))
-#?(:cljs (def    chAtom (chP (instance? cljs.core/Atom    x))))
-(chReg           chAtom)
+(def chAtomOf
+  (chC (instance?
+        #?(:clj  clojure.lang.Atom
+           :cljs    cljs.core/Atom) x)))
+
+(def chAssoc        (chP (associative? x))) (chReg      chAssoc)
+(def chBool         (chP (boolean?     x))) (chReg       chBool)
+(def chChar         (chP (char?        x))) (chReg       chChar)
+(def chColl         (chP (coll?        x))) (chReg       chColl)
+(def chCounted      (chP (counted?     x))) (chReg    chCounted)
+(def chDelay        (chP (delay?       x))) (chReg      chDelay)
+(def chFn           (chP (fn?          x))) (chReg         chFn)
+(def chIfn          (chP (ifn?         x))) (chReg        chIfn)
+(def chIndexed      (chP (indexed?     x))) (chReg    chIndexed)
+(def chInteger      (chP (integer?     x))) (chReg    chInteger)
+(def chKeyword      (chP (keyword?     x))) (chReg    chKeyword)
+(def chList         (chP (list?        x))) (chReg       chList)
+(def chMap          (chP (map?         x))) (chReg        chMap)
+(def chNonEmpty     (chP (seq          x))) (chReg   chNonEmpty)
+(def chRecord       (chP (record?      x))) (chReg     chRecord)
+(def chReduced      (chP (reduced?     x))) (chReg    chReduced)
+(def chReversible   (chP (reversible?  x))) (chReg chReversible)
+(def chSeq          (chP (seq?         x))) (chReg        chSeq)
+(def chSeqable      (chP (seqable?     x))) (chReg    chSeqable)
+(def chSequential   (chP (sequential?  x))) (chReg chSequential)
+(def chSet          (chP (set?         x))) (chReg        chSet)
+(def chSorted       (chP (sorted?      x))) (chReg     chSorted)
+(def chString       (chP (string?      x))) (chReg     chString)
+(def chSymbol       (chP (symbol?      x))) (chReg     chSymbol)
+(def chVar          (chP (var?         x))) (chReg        chVar)
+(def chVector       (chP (vector?      x))) (chReg     chVector)
+
+(def chAssocOf      (chC (associative? x)))
+(def chCountedOf    (chC (counted?     x)))
+(def chListOf       (chC (list?        x)))
+(def chNonEmptyOf   (chC (seq          x)))
+(def chReversibleOf (chC (reversible?  x)))
+(def chSetOf        (chC (set?         x)))
+(def chSortedOf     (chC (sorted?      x)))
+(def chVectorOf     (chC (vector?      x)))
+
+(def chNonBlank
+  (chP #?(:clj  (not (blank? x))
+          :cljs (and (string? x)
+                     (not (.isEmptyOrWhitespace js/goog.string x))))))
+(chReg chNonBlank)
+
+;; COMMON NUMBERS CH(ECK)S
+(def chPosInt    (chP (and (int?    x) (pos?  x)))) (chReg    chPosInt)
+(def chNegInt    (chP (and (int?    x) (neg?  x)))) (chReg    chNegInt)
+(def chNatInt    (chP (and (int?    x) (>= x  0)))) (chReg    chNatInt)
+(def chEvenInt   (chP (and (int?    x) (even? x)))) (chReg   chEvenInt)
+(def chOddInt    (chP (and (int?    x) (odd?  x)))) (chReg    chOddInt)
+
+(def chFloat     (chP      (float?  x)))            (chReg     chFloat)
+(def chInt       (chP      (int?    x)))            (chReg       chInt)
+(def chNumber    (chP      (number? x)))            (chReg    chNumber)
+
+;; CLOJURE CHECKS
+#?(:clj (defchP chAgent (instance? clojure.lang.Agent x)))
+#?(:clj (chReg  chAgent))
 
 #?(:clj (defchP  chASeq (instance? clojure.lang.ASeq  x)))
 #?(:clj (chReg   chASeq))
 
-#?(:clj  (defchP chBool (instance? Boolean x)))
-#?(:cljs (def    chBool (chP (boolean?     x))))
-(chReg           chBool)
+#?(:clj (defchP chDeref (instance? clojure.lang.IDeref x)))
+#?(:clj (chReg  chDeref))
 
-;; (defchP chDeref      (instance? clojure.lang.IDeref     x)) (chReg      chDeref)
-;; (defchP chIndexed    (instance? clojure.lang.Indexed    x)) (chReg    chIndexed)
-;; (defchP chLazy       (instance? clojure.lang.LazySeq    x)) (chReg       chLazy)
-;; (defchP chLookup     (instance? clojure.lang.ILookup    x)) (chReg     chLookup)
-;; (defchP chRef        (instance? clojure.lang.Ref        x)) (chReg        chRef)
-;; (defchP chSeqable    (instance? clojure.lang.Seqable    x)) (chReg    chSeqable)
-;; (defchP chSequential (instance? clojure.lang.Sequential x)) (chReg chSequential)
+#?(:clj (defchP chLazy (instance? clojure.lang.LazySeq x)))
+#?(:clj (chReg  chLazy))
 
-;; (defchP chAssoc      (associative? x)) (chReg      chAssoc)
-;; (defchP chChar       (char?        x)) (chReg       chChar)
-;; (defchP chClass      (class?       x)) (chReg      chClass)
-;; (defchP chColl       (coll?        x)) (chReg       chColl)
-;; (defchP chCounted    (counted?     x)) (chReg    chCounted)
-;; (defchP chDelay      (delay?       x)) (chReg      chDelay)
-;; (defchP chFn         (fn?          x)) (chReg         chFn)
-;; (defchP chFuture     (future?      x)) (chReg     chFuture)
-;; (defchP chIfn        (ifn?         x)) (chReg        chIfn)
-;; (defchP chInteger    (integer?     x)) (chReg    chInteger)
-;; (defchP chKeyword    (keyword?     x)) (chReg    chKeyword)
-;; (defchP chList       (list?        x)) (chReg       chList)
-;; (defchP chMap        (map?         x)) (chReg        chMap)
-;; (defchP chSet        (set?         x)) (chReg        chSet)
-;; (defchP chRecord     (record?      x)) (chReg     chRecord)
-;; (defchP chReduced    (reduced?     x)) (chReg    chReduced)
-;; (defchP chReversible (reversible?  x)) (chReg chReversible)
-;; (defchP chSeq        (seq?         x)) (chReg        chSeq)
-;; (defchP chSorted     (sorted?      x)) (chReg     chSorted)
-;; (defchP chString     (string?      x)) (chReg     chString)
-;; (defchP chSymbol     (symbol?      x)) (chReg     chSymbol)
-;; (defchP chVar        (var?         x)) (chReg        chVar)
-;; (defchP chVector     (vector?      x)) (chReg     chVector)
+#?(:clj (defchP chLookup (instance? clojure.lang.ILookup x)))
+#?(:clj (chReg  chLookup))
 
-;; (defchP chJavaColl   (instance? java.util.Collection x)) (chReg chJavaColl)
-;; (defchP chJavaList   (instance? java.util.List       x)) (chReg chJavaList)
-;; (defchP chJavaMap    (instance? java.util.Map        x)) (chReg  chJavaMap)
-;; (defchP chJavaSet    (instance? java.util.Set        x)) (chReg  chJavaSet)
+#?(:clj (defchP chRef (instance? clojure.lang.Ref x)))
+#?(:clj (chReg  chRef))
 
-;; (defchP chNonBlank (not (blank? x))) (chReg chNonBlank)
+#?(:clj (def   chFuture (chP (future? x))))
+#?(:clj (chReg chFuture))
 
-;; ;; PRIMITIVE NUMBERS CH(ECK)S
-;; (defn chLong ^long [^long x] x) (chReg chLong)
+#?(:clj (def   chClass (chP (class? x))))
+#?(:clj (chReg chClass))
 
-;; (defn chNatLong ^long
-;;   [^long x]
-;;   (assert (p/>= x 0) (errMessage x))
-;;   x)
+;; CLOJURE NUMBER CHECKS
+#?(:clj (def   chRational (chP (rational? x))))
+#?(:clj (chReg chRational))
 
-;; (chReg chNatLong)
+#?(:clj (def   chRatio (chP (ratio? x))))
+#?(:clj (chReg chRatio))
 
-;; (defn chPosLong ^long
-;;   [^long x]
-;;   (assert (p/> x 0) (errMessage x))
-;;   x)
+#?(:clj (def   chDecimal (chP (decimal? x))))
+#?(:clj (chReg chDecimal))
 
-;; (chReg chPosLong)
+#?(:clj (defn chLong ^long [^long x] x))
+#?(:clj (chReg chLong))
 
-;; (defn chLongIn ^long
-;;   [^long m ^long n ^long x]
-;;   (assert (<= m n))
-;;   (assert (p/<= m x) (errMessage x))
-;;   (assert (p/<= x n) (errMessage x))
-;;   x)
+#?(:clj (defn chNatLong ^long
+          [^long x]
+          (assert (>= x 0) (errMessage x))
+          x))
 
-;; (defn chDouble ^double [^double x] x) (chReg chDouble)
+#?(:clj (chReg chNatLong))
 
-;; (defn chDoubleIn ^double
-;;   [^double a ^double b ^double x]
-;;   (assert (<= a b))
-;;   (assert (p/<= a x) (errMessage x))
-;;   (assert (p/<= x b) (errMessage x))
-;;   x)
+#?(:clj (defn chPosLong ^long
+          [^long x]
+          (assert (> x 0) (errMessage x))
+          x))
 
-;; (defchP chFloat    (float?    x)) (chReg    chFloat)
-;; (defchP chDecimal  (decimal?  x)) (chReg  chDecimal)
-;; (defchP chNumber   (number?   x)) (chReg   chNumber)
-;; (defchP chRatio    (ratio?    x)) (chReg    chRatio)
-;; (defchP chRational (rational? x)) (chReg chRational)
+#?(:clj (chReg chPosLong))
 
-;; CLOJURE SCRIPT
-;; ;; ESSENTIAL CH(ECK)S
-;; (def chIdent    (fn [x] x))
-;; (def chString   (chP (string?  x))) (chReg chString)
-;; (def chFn       (chP (fn?      x))) (chReg     chFn)
-;; (def chIFn      (chP (ifn?     x))) (chReg    chIFn)
+#?(:clj (defn chLongIn ^long
+          [^long m ^long n ^long x]
+          (assert (<= m n))
+          (assert (<= m x) (errMessage x))
+          (assert (<= x n) (errMessage x))
+          x))
 
-;; (def chInt      (chP (int?     x))) (chReg    chInt)
-;; (def chDouble   (chP (double?  x))) (chReg chDouble)
-;; (def chObject   (chP (object?  x))) (chReg chObject)
-;; (def chArray    (chP (array?   x))) (chReg  chArray)
+#?(:clj (defn  chDouble ^double [^double x] x))
+#?(:clj (chReg chDouble))
 
-;; ;; NUMBERS CH(ECK)S
-;; (def chPosInt   (chP (and (int?    x) (pos?  x)))) (chReg    chPosInt)
-;; (def chNegInt   (chP (and (int?    x) (neg?  x)))) (chReg    chNegInt)
-;; (def chNatInt   (chP (and (int?    x) (>= x  0)))) (chReg    chNatInt)
-;; (def chEvenInt  (chP (and (int?    x) (even? x)))) (chReg   chEvenInt)
-;; (def chOddInt   (chP (and (int?    x) (odd?  x)))) (chReg    chOddInt)
+#?(:clj (defn chDoubleIn ^double
+          [^double a ^double b ^double x]
+          (assert (<= a b))
+          (assert (<= a x) (errMessage x))
+          (assert (<= x b) (errMessage x))
+          x))
 
-;; (def chPosDouble(chP (and (double? x) (pos? x))))  (chReg chPosDouble)
-;; (def chNegDouble(chP (and (double? x) (neg? x))))  (chReg chNegDouble)
-;; (def ch0+Double (chP (and (double? x) (>= x  0)))) (chReg  ch0+Double)
+#?(:clj (defn chPosDouble ^double
+          [^double x]
+          (assert (> x 0) (errMessage x))
+          x))
 
-;; ;; CLJS CH(ECK)S
-;; (def chColl          (chP (coll?        x)))  (chReg        chColl)
-;; (def chList          (chP (list?        x)))  (chReg        chList)
-;; (def chVector        (chP (vector?      x)))  (chReg      chVector)
-;; (def chSet           (chP (set?         x)))  (chReg         chSet)
-;; (def chSeq           (chP (seq?         x)))  (chReg         chSeq)
+#?(:clj (chReg chPosDouble))
 
-;; (def chListOf        (chC (list?        x)))
-;; (def chVectorOf      (chC (vector?      x)))
-;; (def chSetOf         (chC (set?         x)))
+#?(:clj (defn chNegDouble ^double
+          [^double x]
+          (assert (< x 0) (errMessage x))
+          x))
 
-;; (def chNonEmpty      (chP (seq          x)))  (chReg    chNonEmpty)
-;; (def chSequential    (chP (sequential?  x)))  (chReg  chSequential)
-;; (def chAssociative   (chP (associative? x)))  (chReg chAssociative)
-;; (def chSorted        (chP (sorted?      x)))  (chReg      chSorted)
-;; (def chCounted       (chP (counted?     x)))  (chReg     chCounted)
-;; (def chReversible    (chP (reversible?  x)))  (chReg  chReversible)
+#?(:clj (chReg chNegDouble))
 
-;; (def chNonEmptyOf    (chC (seq          x)))
-;; (def chAssociativeOf (chC (associative? x)))
-;; (def chSortedOf      (chC (sorted?      x)))
-;; (def chCountedOf     (chC (counted?     x)))
-;; (def chReversibleOf  (chC (reversible?  x)))
+#?(:clj (defn ch0+Double ^double
+          [^double x]
+          (assert (>= x 0) (errMessage x))
+          x))
 
-;; (def chMap (chP (map? x))) (chReg chMap)
+#?(:clj (chReg ch0+Double))
 
+;; CLOJURE-SCRIPT CHECKS
+#?(:cljs (def chObject    (chP      (object? x)))) #?(:cljs (chReg chObject))
+#?(:cljs (def chArray     (chP      (array?  x)))) #?(:cljs (chReg  chArray))
 
-;; (def chAtomOf (chC (instance? cljs.core/Atom x)))
+#?(:cljs (def chDouble    (chP      (double? x))))            #?(:cljs (chReg    chDouble))
+#?(:cljs (def chPosDouble (chP (and (double? x) (pos?  x))))) #?(:cljs (chReg chPosDouble))
+#?(:cljs (def chNegDouble (chP (and (double? x) (neg?  x))))) #?(:cljs (chReg chNegDouble))
+#?(:cljs (def ch0+Double  (chP (and (double? x) (>= x  0))))) #?(:cljs (chReg  ch0+Double))
 
-;; (def chNonBlank
-;;   (chP
-;;    (and (string? x)
-;;         (not (.isEmptyOrWhitespace js/goog.string x)))))
-;; (chReg chNonBlank)
+;; JAVA CHECKS
+(def chJavaColl (chP (instance? java.util.Collection x))) (chReg chJavaColl)
+(def chJavaList (chP (instance? java.util.List       x))) (chReg chJavaList)
+(def chJavaMap  (chP (instance? java.util.Map        x))) (chReg  chJavaMap)
+(def chJavaSet  (chP (instance? java.util.Set        x))) (chReg  chJavaSet)
