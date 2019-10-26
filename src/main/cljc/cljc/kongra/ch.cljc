@@ -9,11 +9,14 @@
    [clojure.string
     :refer [blank?]]
 
+   #?(:clj [clojure.spec.alpha
+            :as spec])
+
    #?(:cljs [cljs.pprint
              :refer [pprint]])
 
    #?(:cljs [cljc.kongra.ch.macros
-             :refer-macros [chP chReg chC]])))
+             :refer-macros [chP chReg chC chSpec]])))
 
 #?(:clj (set! *warn-on-reflection* true))
 
@@ -37,11 +40,12 @@
   [check x]
   (chBool
    (try
-     (check x)                              true
-     #?(:clj  (catch AssertionError       _ false))
-     #?(:clj  (catch ClassCastException   _ false))
-     #?(:clj  (catch NullPointerException _ false))
-     #?(:cljs (catch js/Error             _ false)))))
+     (check x)                                    true
+     #?(:clj  (catch AssertionError             _ false))
+     #?(:clj  (catch ClassCastException         _ false))
+     #?(:clj  (catch NullPointerException       _ false))
+     #?(:clj  (catch clojure.lang.ExceptionInfo _ false))
+     #?(:cljs (catch js/Error                   _ false)))))
 
 (defn chs
   [x]
@@ -71,7 +75,13 @@
 #?(:clj (defmacro chP
           [expr]
           (let [x (symbol "x")]
-            `(fn [~x] (assert ~expr (cljc.kongra.ch/errMessage ~x)) ~x))))
+            `(fn [~x] (assert ~expr (errMessage ~x)) ~x))))
+
+#?(:clj (defmacro chSpec
+          [spec]
+          (let [x (symbol "x")]
+            `(fn [~x]
+               (spec/assert ~spec ~x)))))
 
 #?(:clj (defmacro chC
           [expr]
@@ -79,12 +89,12 @@
             `(fn
                ([check#]
                 (fn [~x]
-                  (assert ~expr (cljc.kongra.ch/errMessage ~x))
+                  (assert ~expr (errMessage ~x))
                   (doseq [e# ~x] (check# e#))
                   ~x))
 
                ([check# ~x]
-                (assert ~expr (cljc.kongra.ch/errMessage ~x))
+                (assert ~expr (errMessage ~x))
                 (doseq [e# ~x] (check# e#))
                 ~x)))))
 
@@ -93,7 +103,7 @@
            (let [name (str check)]
              `(let [name# (str ~name)]
                 (assert (fn? ~check))
-                (swap! cljc.kongra.ch/checksRegistry
+                (swap! checksRegistry
                        (fn [m#]
                          (when (m# name#)
                            (println "WARNING: (ch)eck name already in use:" name#))
@@ -101,7 +111,7 @@
                 nil)))
 
           ([name check]
-           `(swap! cljc.kongra.ch/checksRegistry assoc ~name ~check))))
+           `(swap! checksRegistry assoc ~name ~check))))
 
 #?(:clj (defmacro defchP
           [name expr]
@@ -118,7 +128,7 @@
                                 :style/indent [0])]
             `(def ~name (chC ~expr)))))
 
-;; COMMON CHECKS
+;; COMMON CLOJURE AND CLOJURE-SCRIPT CHECKS
 (defn chOptional [check x] (if (nil? x) x (check x)))
 
 (def chIdent (fn [x]     x))
@@ -177,7 +187,7 @@
                      (not (.isEmptyOrWhitespace js/goog.string x))))))
 (chReg chNonBlank)
 
-;; COMMON NUMBERS CH(ECK)S
+;; COMMON CLOJURE AND CLOJURE-SCRIPT NUMBERS CH(ECK)S
 (def chPosInt    (chP (and (int?    x) (pos?  x)))) (chReg    chPosInt)
 (def chNegInt    (chP (and (int?    x) (neg?  x)))) (chReg    chNegInt)
 (def chNatInt    (chP (and (int?    x) (>= x  0)))) (chReg    chNatInt)
