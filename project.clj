@@ -7,7 +7,7 @@
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure         "1.10.0"]
-                 [org.clojure/clojurescript "1.10.439"]]
+                 [org.clojure/clojurescript "1.10.520"]]
 
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
@@ -27,12 +27,12 @@
   :aliases {"fig:repl" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
 
   :profiles {:repl {:plugins [[lein-nodisassemble "0.1.3"]
-                              [cider/cider-nrepl "0.21.0"]]
+                              [cider/cider-nrepl "0.22.3"]]
 
                     :middleware [lein-nodisassemble.plugin/middleware
                                  cider-nrepl.plugin/middleware]}
 
-             :dev  {:dependencies [[com.bhauman/figwheel-main "0.2.0"]
+             :dev  {:dependencies [[com.bhauman/figwheel-main "0.2.3"]
                                    [com.bhauman/rebel-readline-cljs "0.1.4"]]
 
                     :source-paths   ^:replace ["src/main/cljc" "src/main/clj"]
