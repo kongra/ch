@@ -2,6 +2,8 @@
 ;; Created 2019-12-12
 (ns cljc.kongra.spec.alpha)
 
+#?(:clj (set! *warn-on-reflection* true))
+
 #?(:clj
    (defmacro chSpec {:style/indent 1}
      [spec & body]
