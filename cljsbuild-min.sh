@@ -1,2 +1,2 @@
 #!/bin/sh
-lein cljsbuild once min
+lein with-profile uberjar once min
