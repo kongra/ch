@@ -1,6 +1,6 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2018-08-27
-(ns cljc.kongra.ch.macros)
+(ns cljs.kongra.ch.macros)
 
 #?(:clj (set! *warn-on-reflection* true))
 

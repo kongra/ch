@@ -15,7 +15,7 @@
    #?(:cljs [cljs.pprint
              :refer [pprint]])
 
-   #?(:cljs [cljc.kongra.ch.macros
+   #?(:cljs [cljs.kongra.ch.macros
              :refer-macros [chP chReg chC chSpec]])))
 
 #?(:clj (set! *warn-on-reflection* true))
