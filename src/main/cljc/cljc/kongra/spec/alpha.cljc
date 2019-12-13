@@ -64,13 +64,6 @@
 
                 (println result#)))))))
 
-;; CLOJURE: DEBUG COMPILATION FLAGS
-#?(:clj  (println ":clj *assert*"                        *assert*))
-#?(:clj  (println ":clj *compile-asserts*" spec/*compile-asserts*))
-#?(:clj
-   (println ":clj clojure.compiler.direct-linking"
-            (System/getProperty "clojure.compiler.direct-linking")))
-
 ;; ;; TEST CLOJURE: PASS
 ;; #?(:clj (spec/def ::posInt pos-int?))
 
@@ -97,10 +90,6 @@
 ;; #?(:clj (specInstr `goo))
 ;; #?(:clj (specCheck `goo)) ;; Fails with ./nREPL.sh and lein compile
 ;; #?(:clj (goo 1))          ;; Fails with ./nREPL.sh and lein compile
-
-;; ;; CLOJURE SCRIPT: DEBUG COMPILATION FLAGS
-;; #?(:cljs  (println ":cljs *assert*"                        *assert*))
-;; #?(:cljs  (println ":cljs *compile-asserts*" spec/*compile-asserts*))
 
 ;; ;; TEST CLOJURE SCRIPT: PASS
 ;; #?(:cljs (spec/def ::posInt pos-int?))
