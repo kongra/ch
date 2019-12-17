@@ -16,7 +16,6 @@
   :test-paths   ["test/clojure" ]
 
   :global-vars  {*warn-on-reflection* false
-                 *assert*             false
                  *print-length*         500}
 
   ;; :pedantic? :warn
@@ -25,22 +24,22 @@
   :aliases {"fig:repl" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
 
   :profiles {:uberjar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"
-                                  "-Dclojure.spec.compile-asserts=false"]}
+                                  "-Dclojure.spec.compile-asserts=false"
+                                  "-Dclojure.spec.check-asserts=false"]}
 
-             :repl {:dependencies [[org.clojure/test.check "0.10.0"]]
-                    :plugins      [[lein-nodisassemble      "0.1.3"]
-                                   [cider/cider-nrepl      "0.22.3"]]
+             :repl {:dependencies [[org.clojure/test.check     "0.10.0"]]
+                    :plugins      [[lein-nodisassemble          "0.1.3"]
+                                   [cider/cider-nrepl "0.23.0-SNAPSHOT"]]
 
-                    :middleware [lein-nodisassemble.plugin/middleware]
+                    :middleware  [lein-nodisassemble.plugin/middleware]
 
-                    :global-vars {*assert* true}
                     :jvm-opts    ["-Dclojure.compiler.direct-linking=false"
                                   "-Dclojure.spec.compile-asserts=true"
+                                  "-Dclojure.spec.check-asserts=true"
                                   "-XX:-OmitStackTraceInFastThrow"
                                   "-server"
                                   "-Xms1g"
                                   "-Xmx1g"
-                                  "-XX:+UseG1GC"
                                   "-XX:+UseStringDeduplication"
                                   "-XX:+DoEscapeAnalysis"
                                   "-XX:+UseCompressedOops"]}
@@ -49,14 +48,13 @@
                                    [com.bhauman/figwheel-main       "0.2.3"]
                                    [com.bhauman/rebel-readline-cljs "0.1.4"]]
 
-                    :global-vars  {*assert* true}
                     :jvm-opts     ["-Dclojure.compiler.direct-linking=true"
                                    "-Dclojure.spec.compile-asserts=true"
+                                   "-Dclojure.spec.check-asserts=true"
                                    "-XX:-OmitStackTraceInFastThrow"
                                    "-server"
                                    "-Xms1g"
                                    "-Xmx1g"
-                                   "-XX:+UseG1GC"
                                    "-XX:+UseStringDeduplication"
                                    "-XX:+DoEscapeAnalysis"
                                    "-XX:+UseCompressedOops"]

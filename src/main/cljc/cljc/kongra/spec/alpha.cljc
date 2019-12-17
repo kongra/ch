@@ -25,7 +25,6 @@
             [cljs.kongra.spec.alpha.macros
              :refer [chSpec specInstr specCheck]])))
 
-
 #?(:clj (set! *warn-on-reflection* true))
 
 #?(:clj
@@ -36,6 +35,8 @@
                   (first body)
                   `(do ~@body))]
 
+       ;; Works like spec/assert but depends only on *compile-asserts* and not
+       ;; spec/check-asserts?
        (if spec/*compile-asserts*
          `(spec/assert* ~spec ~body)
          body))))
@@ -44,13 +45,15 @@
    (defmacro specInstr
      [s]
      (when spec/*compile-asserts*
-       `(spectest/instrument ~s))))
+       `(when (spec/check-asserts?)
+          (spectest/instrument ~s)))))
 
 #?(:clj
    (defmacro specCheck
      [s]
      (when spec/*compile-asserts*
-       `(do (print "specCheck" ~s "... ")
+       `(when (spec/check-asserts?)
+          (print "specCheck" ~s "... ")
             (let [result#
                   (-> ~s
                       (spectest/check {:num-tests 1e4})
@@ -63,33 +66,6 @@
                          (:time-elapsed-ms result#) "msecs")
 
                 (println result#)))))))
-
-;; ;; TEST CLOJURE: PASS
-;; #?(:clj (spec/def ::posInt pos-int?))
-
-;; #?(:clj (spec/fdef foo
-;;           :args (spec/cat :x ::posInt)
-;;           :ret  ::posInt))
-
-;; #?(:clj (defn- foo [x]
-;;           (chSpec ::posInt
-;;             (+ x 3))))
-
-;; #?(:clj (specInstr `foo))
-;; #?(:clj (specCheck `foo))
-
-;; ;; TEST CLOJURE: ERROR
-;; #?(:clj (spec/fdef goo
-;;           :args (spec/cat :x ::posInt)
-;;           :ret  ::posInt))
-
-;; #?(:clj (defn- goo [x]
-;;           (chSpec ::posInt
-;;             (- x 3))))
-
-;; #?(:clj (specInstr `goo))
-;; #?(:clj (specCheck `goo)) ;; Fails with ./nREPL.sh and lein compile
-;; #?(:clj (goo 1))          ;; Fails with ./nREPL.sh and lein compile
 
 ;; ;; TEST CLOJURE SCRIPT: PASS
 ;; #?(:cljs (spec/def ::posInt pos-int?))

@@ -15,6 +15,8 @@
                   (first body)
                   `(do ~@body))]
 
+       ;; Works like spec/assert but depends only on *compile-asserts* and not
+       ;; spec/check-asserts?
        (if spec/*compile-asserts*
          `(cljs.spec.alpha/assert* ~spec ~body)
          body))))
@@ -23,13 +25,14 @@
    (defmacro specInstr
      [s]
      (when spec/*compile-asserts*
-       `(cljs.spec.test.alpha/instrument ~s))))
+       `(when (cljs.spec.alpha/check-asserts?)
+          (cljs.spec.test.alpha/instrument ~s)))))
 
 #?(:clj
    (defmacro specCheck
      [s]
      (when spec/*compile-asserts*
-       `(do
+       `(when (cljs.spec.alpha/check-asserts?)
           (print "specCheck" ~s "...")
           (let [result#
                 (-> ~s
