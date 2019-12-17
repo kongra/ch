@@ -21,7 +21,7 @@
 
 (defn- foo [x]
   (chSpec ::posInt
-          (+ x 3)))
+    (+ x 3)))
 
 (specInstr `foo)
 (specCheck `foo)
@@ -33,7 +33,7 @@
 
 (defn- goo [x]
   (chSpec ::posInt
-          (- x 3)))
+    (- x 3)))
 
 (specInstr `goo)
 (specCheck `goo) ;; Fails dumping to the std. output
