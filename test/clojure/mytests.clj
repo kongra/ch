@@ -26,7 +26,7 @@
 (specInstr `foo)
 (specCheck `foo)
 
-;; TEST CLOJURE: ERROR
+;; TEST CLOJURE: FAILURES
 (spec/fdef goo
   :args (spec/cat :x ::posInt)
   :ret  ::posInt)
@@ -39,4 +39,5 @@
 (specCheck `goo) ;; Fails dumping to the std. output
 
 (deftest chSpecTest
+  ;; Fails with-profile uberjar cause there is no exception then
   (is (thrown? Exception (goo 1))))
