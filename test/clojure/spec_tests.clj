@@ -1,4 +1,4 @@
-(ns mytests
+(ns spec-tests
   (:use clojure.test)
 
   (:require
