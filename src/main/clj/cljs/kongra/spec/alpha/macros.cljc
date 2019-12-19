@@ -30,19 +30,22 @@
 
 #?(:clj
    (defmacro specCheck
-     [s]
-     (when spec/*compile-asserts*
-       `(when (cljs.spec.alpha/check-asserts?)
-          (print "specCheck" ~s "...")
-          (let [result#
-                (-> ~s
-                    (cljs.spec.test.alpha/check {:num-tests 1e4})
-                    first
-                    :clojure.spec.test.check/ret)]
+     ([s]
+      `(specCheck ~s {}))
 
-            (if (= (:result result#) true)
-              (println (:num-tests result#)
-                       "calls in"
-                       (:time-elapsed-ms result#) "msecs")
+     ([s opts]
+      (when spec/*compile-asserts*
+        `(when (cljs.spec.alpha/check-asserts?)
+           (print "specCheck" ~s "...")
+           (let [result#
+                 (-> ~s
+                   (cljs.spec.test.alpha/check ~opts)
+                   first
+                   :clojure.spec.test.check/ret)]
 
-              (println result#)))))))
+             (if (= (:result result#) true)
+               (println (:num-tests result#)
+                 "calls in"
+                 (:time-elapsed-ms result#) "msecs")
+
+               (println result#))))))))
