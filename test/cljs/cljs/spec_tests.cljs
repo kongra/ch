@@ -2,7 +2,8 @@
   (:require
    ;; SPEC
    [cljs.spec.alpha                         :as  spec]
-   [cljs.kongra.spec.alpha.macros :refer-macros [chSpec specInstr specCheck]]
+   [cljs.kongra.spec.alpha.macros :refer-macros [chSpec specInstr specCheck
+                                                 specAl specAl! specAlReset!]]
    [cljs.spec.test.alpha          :refer-macros [instrument instrument-1]]
    [cljs.spec.test.alpha                 :refer [instrument-1*]]
    [clojure.test.check]
@@ -46,3 +47,9 @@
 
 (enable-console-print!)
 (run-tests)
+
+(spec/def :aaa/int int?)
+(spec/assert :aaa/int 1)
+
+(specAl! "bbb" "aaa")
+(specAl (spec/assert :bbb/int 1))

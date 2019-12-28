@@ -2,11 +2,8 @@
 ;; Created 2019-12-12
 (ns cljc.kongra.spec.alpha
   #?(:clj (:require
-           [clojure.spec.alpha
-            :as spec]
-
-           [clojure.spec.test.alpha
-            :as spectest])))
+           [clojure.spec.alpha      :as     spec]
+           [clojure.spec.test.alpha :as spectest])))
 
 #?(:clj (set! *warn-on-reflection* true))
 
