@@ -13,16 +13,9 @@
 #?(:clj
    (defmacro chSpec {:style/indent 1}
      [spec & body]
-     (assert (seq body))
-     (let [body (if (= 1 (count body))
-                  (first body)
-                  `(do ~@body))]
-
-       ;; Works like spec/assert but depends only on *compile-asserts* and not
-       ;; spec/check-asserts?
-       (if spec/*compile-asserts*
-         `(spec/assert* ~spec ~body)
-         body))))
+     ;; Works like spec/assert but it does not depend on *compile-asserts* nor
+     ;; spec/check-asserts?
+     `(spec/assert* ~spec (do ~@body))))
 
 #?(:clj
    (defmacro specInstr
