@@ -28,21 +28,29 @@
       `(specCheck ~s {}))
 
      ([s opts]
-      (when spec/*compile-asserts*
-        `(when (cljs.spec.alpha/check-asserts?)
-           (print "specCheck" ~s "...")
-           (let [result#
-                 (-> ~s
-                   (cljs.spec.test.alpha/check ~opts)
-                   first
-                   :clojure.spec.test.check/ret)]
+      (let [opts
+            ;; The opts may be an integral meaning the :num-tests
+            (if (pos-int? opts)
+              {:clojure.spec.test.check/opts
+               {:num-tests opts}}
 
-             (if (= (:result result#) true)
-               (println (:num-tests result#)
-                 "calls in"
-                 (:time-elapsed-ms result#) "msecs")
+              opts)]
 
-               (println result#))))))))
+        (when spec/*compile-asserts*
+          `(when (cljs.spec.alpha/check-asserts?)
+             (print "specCheck" ~s "...")
+             (let [result#
+                   (-> ~s
+                     (cljs.spec.test.alpha/check ~opts)
+                     first
+                     :clojure.spec.test.check/ret)]
+
+               (if (= (:result result#) true)
+                 (println (:num-tests result#)
+                   "calls in"
+                   (:time-elapsed-ms result#) "msecs")
+
+                 (println result#)))))))))
 
 ;; NS/KEYS ALIASING PROBLEM SOLUTION
 #?(:clj (defonce ^:private specAlAtom (atom {})))
@@ -78,13 +86,9 @@
      [al ns]
      (spec/assert ::nonBlank al)
      (spec/assert ::nonBlank ns)
-     (swap! specAlAtom assoc al ns)
-
-     nil))
+     (swap! specAlAtom assoc al ns)))
 
 #?(:clj
    (defmacro specAlReset!
      []
-     (reset! specAlAtom {})
-
-     nil))
+     (reset! specAlAtom {})))

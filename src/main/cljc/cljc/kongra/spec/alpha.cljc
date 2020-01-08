@@ -27,18 +27,26 @@
       `(specCheck ~s {}))
 
      ([s opts]
-      (when spec/*compile-asserts*
-        `(when (spec/check-asserts?)
-           (print "specCheck" ~s "... ")
-           (let [result#
-                 (-> ~s
-                   (spectest/check ~opts)
-                   first
-                   :clojure.spec.test.check/ret)]
+      (let [opts
+            ;; The opts may be an integral meaning the :num-tests
+            (if (pos-int? opts)
+              {:clojure.spec.test.check/opts
+               {:num-tests opts}}
 
-             (if (= (:result result#) true)
-               (println (:num-tests result#)
-                 "calls in"
-                 (:time-elapsed-ms result#) "msecs")
+              opts)]
 
-               (println result#))))))))
+        (when spec/*compile-asserts*
+          `(when (spec/check-asserts?)
+             (print "specCheck" ~s "... ")
+             (let [result#
+                   (-> ~s
+                     (spectest/check ~opts)
+                     first
+                     :clojure.spec.test.check/ret)]
+
+               (if (= (:result result#) true)
+                 (println (:num-tests result#)
+                   "calls in"
+                   (:time-elapsed-ms result#) "msecs")
+
+                 (println result#)))))))))

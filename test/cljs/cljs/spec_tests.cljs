@@ -28,6 +28,7 @@
 
 (specInstr `foo)
 (specCheck `foo)
+(specCheck `foo 10)
 
 ;; TEST CLOJURE: FAILURES
 (spec/fdef goo
@@ -39,7 +40,7 @@
           (- x 3)))
 
 (specInstr `goo)
-(specCheck `goo) ;; Fails dumping to the js/console
+#_(specCheck `goo) ;; Fails dumping to the js/console
 
 (deftest chSpecTest
   ;; Fails with-profile uberjar cause there is no exception then

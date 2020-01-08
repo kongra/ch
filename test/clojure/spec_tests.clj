@@ -24,7 +24,7 @@
     (+ x 3)))
 
 (specInstr `foo)
-(specCheck `foo)
+(specCheck `foo 10)
 
 ;; TEST CLOJURE: FAILURES
 (spec/fdef goo
@@ -36,8 +36,10 @@
     (- x 3)))
 
 (specInstr `goo)
-(specCheck `goo) ;; Fails dumping to the std. output
+;; (specCheck `goo) ;; Fails dumping to the std. output
 
 (deftest chSpecTest
   ;; Fails with-profile uberjar cause there is no exception then
   (is (thrown? Exception (goo 1))))
+
+(run-tests)
