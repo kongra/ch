@@ -2,10 +2,9 @@
   (:require
    ;; SPEC
    [cljs.spec.alpha                         :as  spec]
-   [cljs.kongra.spec.alpha.macros :refer-macros [chSpec specInstr specCheck
-                                                 specAl specAl! specAlReset!]]
-   [cljs.spec.test.alpha          :refer-macros [instrument instrument-1]]
-   [cljs.spec.test.alpha                 :refer [instrument-1*]]
+   [cljs.kongra.spec.alpha.macros :refer-macros [chSpec specInstr specCheck]]
+   [cljs.spec.test.alpha          :refer-macros [instrument instrument-1   ]]
+   [cljs.spec.test.alpha                 :refer [instrument-1*             ]]
    [clojure.test.check]
    [clojure.test.check.properties]
 
@@ -24,7 +23,7 @@
 
 (defn- foo [x]
   (chSpec ::posInt
-          (+ x 3)))
+    (+ x 3)))
 
 (specInstr `foo)
 (specCheck `foo)
@@ -37,7 +36,7 @@
 
 (defn- goo [x]
   (chSpec ::posInt
-          (- x 3)))
+    (- x 3)))
 
 (specInstr `goo)
 #_(specCheck `goo) ;; Fails dumping to the js/console
@@ -51,6 +50,3 @@
 
 (spec/def :aaa/int int?)
 (spec/assert :aaa/int 1)
-
-(specAl! "bbb" "aaa")
-(specAl (spec/assert :bbb/int 1))
