@@ -1,13 +1,13 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.28"
+(defproject kongra/ch "0.1.29"
   :description "Low-cost dynamic type and constraints checks"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure         "1.10.0"]
-                 [org.clojure/clojurescript "1.10.597"]]
+  :dependencies [[org.clojure/clojure         "1.10.3"]
+                 [org.clojure/clojurescript "1.10.879"]]
 
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
@@ -27,9 +27,9 @@
                                   "-Dclojure.spec.compile-asserts=false"
                                   "-Dclojure.spec.check-asserts=false"]}
 
-             :repl {:dependencies [[org.clojure/test.check     "0.10.0"]]
-                    :plugins      [[lein-nodisassemble          "0.1.3"]
-                                   [cider/cider-nrepl "0.23.0-SNAPSHOT"]]
+             :repl {:dependencies [[org.clojure/test.check  "1.1.0"]]
+                    :plugins      [[lein-nodisassemble      "0.1.3"]
+                                   [cider/cider-nrepl      "0.26.0"]]
 
                     :middleware  [lein-nodisassemble.plugin/middleware]
 
@@ -44,9 +44,9 @@
                                   "-XX:+DoEscapeAnalysis"
                                   "-XX:+UseCompressedOops"]}
 
-             :dev  {:dependencies [[org.clojure/test.check         "0.10.0"]
-                                   [com.bhauman/figwheel-main       "0.2.3"]
-                                   [com.bhauman/rebel-readline-cljs "0.1.4"]]
+             :dev  {:dependencies [[org.clojure/test.check           "1.1.0"]
+                                   [com.bhauman/figwheel-main       "0.2.14"]
+                                   [com.bhauman/rebel-readline-cljs  "0.1.4"]]
 
                     :jvm-opts     ["-Dclojure.compiler.direct-linking=true"
                                    "-Dclojure.spec.compile-asserts=true"
