@@ -7,7 +7,9 @@
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
   :dependencies [[org.clojure/clojure         "1.10.3"]
-                 [org.clojure/clojurescript "1.10.879"]]
+                 [org.clojure/clojurescript "1.10.879"]
+
+                 [metosin/malli "0.6.1"]]
 
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
@@ -33,7 +35,7 @@
 
                     :middleware  [lein-nodisassemble.plugin/middleware]
 
-                    :jvm-opts    ["-Dclojure.compiler.direct-linking=false"
+                    :jvm-opts    ["-Dclojure.compiler.direct-linking=true"
                                   "-Dclojure.spec.compile-asserts=true"
                                   "-Dclojure.spec.check-asserts=true"
                                   "-XX:-OmitStackTraceInFastThrow"

@@ -1,45 +1,43 @@
 (ns spec-tests
-  (:use clojure.test)
-
   (:require
    [clojure.spec.alpha
-    :as spec]
+    :as s]
 
-   [cljc.kongra.spec.alpha
-    :refer :all]))
+   [malli.core
+    :as m]
+
+   [criterium.core
+    :as cc]))
 
 (println "clj: *assert*" *assert*)
-(println "clj:  spec/*compile-asserts*" spec/*compile-asserts*)
-(println "clj: (spec/check-asserts?)"  (spec/check-asserts?))
+(println "clj:  spec/*compile-asserts*" s/*compile-asserts*)
+(println "clj: (spec/check-asserts?)"  (s/check-asserts?))
 
-;; TEST CLOJURE: PASS
-(spec/def ::posInt pos-int?)
+(let [spec (s/and int? (s/or :pos-int pos-int? :neg-int neg-int?))
+      valid? (partial s/valid? spec)]
+  (cc/quick-bench
+    (valid? 0))) ;; 93 ns
 
-(spec/fdef foo
-  :args (spec/cat :x ::posInt)
-  :ret  ::posInt)
+(let [valid? (m/validator [:and int? [:or pos-int? neg-int?]])]
+  (cc/quick-bench
+    (valid? 1))) ;; 4 ns
 
-(defn- foo [x]
-  (chSpec ::posInt
-    (+ x 3)))
+;; 23 times
 
-(specInstr `foo)
-(specCheck `foo 10)
+(let [spec (s/* (s/cat :prop string?,
+                       :val (s/alt :s string?
+                                   :b boolean?)))
+      parse (partial s/conform spec)]
+  (cc/quick-bench
+    (parse ["-server" "foo" "-verbose" "-verbose" "-user" "joe"]))) ;; 49 us
 
-;; TEST CLOJURE: FAILURES
-(spec/fdef goo
-  :args (spec/cat :x ::posInt)
-  :ret  ::posInt)
+(let [schema [:* [:catn
+                  [:prop string?]
+                  [:val [:altn
+                         [:s string?]
+                         [:b boolean?]]]]]
+      parse (m/parser schema)]
+  (cc/quick-bench
+    (parse ["-server" "foo" "-verbose" "-verbose" "-user" "joe"]))) ;; 3 us
 
-(defn- goo [x]
-  (chSpec ::posInt
-    (- x 3)))
-
-(specInstr `goo)
-;; (specCheck `goo) ;; Fails dumping to the std. output
-
-(deftest chSpecTest
-  ;; Fails with-profile uberjar cause there is no exception then
-  (is (thrown? Exception (goo 1))))
-
-(run-tests)
+;; 16 times
