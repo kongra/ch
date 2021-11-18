@@ -22,49 +22,54 @@
 
   ;; :pedantic? :warn
 
-  :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
-  :aliases {"fig:repl" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
+  :clean-targets ^{:protect false}
+  ["resources/public/js/compiled" "target"]
 
-  :profiles {:uberjar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"
-                                  "-Dclojure.spec.compile-asserts=false"
-                                  "-Dclojure.spec.check-asserts=false"]}
+  :aliases
+  {"fig:repl" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]}
 
-             :repl {:dependencies [[org.clojure/test.check  "1.1.0"]]
-                    :plugins      [[lein-nodisassemble      "0.1.3"]
-                                   [cider/cider-nrepl      "0.26.0"]]
+  :profiles
+  {:uberjar {:jvm-opts ["-Dclojure.compiler.direct-linking=true"
+                        "-Dclojure.spec.compile-asserts=false"
+                        "-Dclojure.spec.check-asserts=false"]}
 
-                    :middleware  [lein-nodisassemble.plugin/middleware]
+   :repl {:dependencies [[org.clojure/test.check  "1.1.0"]]
+          :plugins      [[lein-nodisassemble      "0.1.3"]
+                         [cider/cider-nrepl      "0.26.0"]]
 
-                    :jvm-opts    ["-Dclojure.compiler.direct-linking=true"
-                                  "-Dclojure.spec.compile-asserts=true"
-                                  "-Dclojure.spec.check-asserts=true"
-                                  "-XX:-OmitStackTraceInFastThrow"
-                                  "-server"
-                                  "-Xms1g"
-                                  "-Xmx1g"
-                                  "-XX:+UseStringDeduplication"
-                                  "-XX:+DoEscapeAnalysis"
-                                  "-XX:+UseCompressedOops"]}
+          :middleware  [lein-nodisassemble.plugin/middleware]
 
-             :dev  {:dependencies [[org.clojure/test.check           "1.1.0"]
-                                   [com.bhauman/figwheel-main       "0.2.14"]
-                                   [com.bhauman/rebel-readline-cljs  "0.1.4"]]
+          :jvm-opts    ["-Dclojure.compiler.direct-linking=true"
+                        "-Dclojure.spec.compile-asserts=true"
+                        "-Dclojure.spec.check-asserts=true"
+                        "-XX:-OmitStackTraceInFastThrow"
+                        "-server"
+                        "-Xms1g"
+                        "-Xmx1g"
+                        "-XX:+UseStringDeduplication"
+                        "-XX:+DoEscapeAnalysis"
+                        "-XX:+UseCompressedOops"]}
 
-                    :jvm-opts     ["-Dclojure.compiler.direct-linking=true"
-                                   "-Dclojure.spec.compile-asserts=true"
-                                   "-Dclojure.spec.check-asserts=true"
-                                   "-XX:-OmitStackTraceInFastThrow"
-                                   "-server"
-                                   "-Xms1g"
-                                   "-Xmx1g"
-                                   "-XX:+UseStringDeduplication"
-                                   "-XX:+DoEscapeAnalysis"
-                                   "-XX:+UseCompressedOops"]
+   :dev  {:dependencies [[org.clojure/test.check           "1.1.0"]
+                         [com.bhauman/figwheel-main       "0.2.14"]
+                         [com.bhauman/rebel-readline-cljs  "0.1.4"]]
 
-                    :source-paths   ^:replace ["src/main/cljc"
-                                               "src/main/clj"
-                                               "test/cljs"]
-                    :resource-paths ["target"]}}
+          :jvm-opts     ["-Dclojure.compiler.direct-linking=true"
+                         "-Dclojure.spec.compile-asserts=true"
+                         "-Dclojure.spec.check-asserts=true"
+                         "-XX:-OmitStackTraceInFastThrow"
+                         "-server"
+                         "-Xms1g"
+                         "-Xmx1g"
+                         "-XX:+UseStringDeduplication"
+                         "-XX:+DoEscapeAnalysis"
+                         "-XX:+UseCompressedOops"]
+
+          :source-paths   ^:replace ["src/main/cljc"
+                                     "src/main/clj"
+                                     "test/cljs"]
+          :resource-paths ["target"]}}
+
   :cljsbuild
   {:builds
    [{:id "min"
