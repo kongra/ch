@@ -1,15 +1,13 @@
 ;; Copyright (c) Konrad Grzanek
 ;; Created 2016-10-05
-(defproject kongra/ch "0.1.29"
+(defproject kongra/ch "0.1.30"
   :description "Low-cost dynamic type and constraints checks"
   :url         "http://github.com/kongra/ch"
   :license     {:name "Eclipse Public License"
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure         "1.10.3"]
-                 [org.clojure/clojurescript "1.10.879"]
-
-                 [metosin/malli "0.6.1"]]
+  :dependencies [[org.clojure/clojure       "1.11.1"]
+                 [org.clojure/clojurescript "1.11.4"]]
 
   :plugins      [[lein-cljsbuild "1.1.7"]]
 
@@ -35,7 +33,7 @@
 
    :repl {:dependencies [[org.clojure/test.check  "1.1.0"]]
           :plugins      [[lein-nodisassemble      "0.1.3"]
-                         [cider/cider-nrepl      "0.26.0"]]
+                         [cider/cider-nrepl      "0.28.3"]]
 
           :middleware  [lein-nodisassemble.plugin/middleware]
 
@@ -50,8 +48,8 @@
                         "-XX:+DoEscapeAnalysis"
                         "-XX:+UseCompressedOops"]}
 
-   :dev  {:dependencies [[org.clojure/test.check           "1.1.0"]
-                         [com.bhauman/figwheel-main       "0.2.14"]
+   :dev  {:dependencies [[org.clojure/test.check           "1.1.1"]
+                         [com.bhauman/figwheel-main       "0.2.16"]
                          [com.bhauman/rebel-readline-cljs  "0.1.4"]]
 
           :jvm-opts     ["-Dclojure.compiler.direct-linking=true"
