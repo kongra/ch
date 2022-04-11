@@ -6,6 +6,8 @@
   :license     {:name "Eclipse Public License"
                 :url  "http://www.eclipse.org/legal/epl-v10.html"}
 
+  :repositories [["releases" {:url "https://repo.clojars.org" :creds :gpg}]]
+
   :dependencies [[org.clojure/clojure       "1.11.1"]
                  [org.clojure/clojurescript "1.11.4"]]
 
